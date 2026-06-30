@@ -1,0 +1,35 @@
+[gd_scene format=3 uid="uid://cind3sw1uqp3b"]
+
+[ext_resource type="Script" uid="uid://5k86yvcu8xei" path="res://Presenters/Person/PersonPresenter.cs" id="1_person"]
+[ext_resource type="Resource" uid="uid://rgnawk06b4pk" path="res://Scenes/Prefabs/Characters/person_layout.tres" id="2_0ck73"]
+[ext_resource type="Script" uid="uid://cxf0oe51vils" path="res://Scripts/CharacterLayer.cs" id="2_layer"]
+
+[node name="Person" type="Node2D" unique_id=1453724797 groups=["ecs_entity"]]
+z_index = 20
+y_sort_enabled = true
+script = ExtResource("1_person")
+SpriteLayout = ExtResource("2_0ck73")
+
+[node name="Body" type="AnimatedSprite2D" parent="." unique_id=342808164]
+y_sort_enabled = true
+position = Vector2(0, -26)
+script = ExtResource("2_layer")
+SpriteFolderPath = "res://Content/Sprites/Characters/Bodies"
+
+[node name="Hair" type="AnimatedSprite2D" parent="." unique_id=1099145844]
+y_sort_enabled = true
+position = Vector2(0, -26)
+script = ExtResource("2_layer")
+SpriteFolderPath = "res://Content/Sprites/Characters/Hair"
+
+[node name="Clothing" type="AnimatedSprite2D" parent="." unique_id=532275044]
+y_sort_enabled = true
+position = Vector2(0, -26)
+script = ExtResource("2_layer")
+SpriteFolderPath = "res://Content/Sprites/Characters/Clothing"
+
+[node name="Face" type="AnimatedSprite2D" parent="." unique_id=1203355820]
+y_sort_enabled = true
+position = Vector2(0, -26)
+script = ExtResource("2_layer")
+SpriteFolderPath = "res://Content/Sprites/Characters/Face"

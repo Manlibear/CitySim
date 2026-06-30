@@ -1,0 +1,25 @@
+# Godot
+.godot/
+/android/
+*.uid
+
+# C# build output
+bin/
+obj/
+
+# Mono/dotnet
+.mono/
+*.user
+
+# VS / Rider
+.vs/
+.idea/
+*.suo
+*.sln.docinfo
+
+# Claude
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db

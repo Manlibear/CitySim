@@ -1,0 +1,140 @@
+[gd_resource type="Theme" format=3 uid="uid://c0cggjjopi77s"]
+
+[ext_resource type="Texture2D" uid="uid://bjbsdbrrsgydc" path="res://Content/Sprites/UI/ui_tilesheet.png" id="1_qk78l"]
+[ext_resource type="FontFile" uid="uid://c0vfnhvso7oul" path="res://Content/Font/PixelOperatorSC.ttf" id="1_wcnyk"]
+[ext_resource type="FontFile" uid="uid://cm41bgplh38ro" path="res://Content/Font/PixelOperator.ttf" id="3_65i3q"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wcnyk"]
+atlas = ExtResource("1_qk78l")
+region = Rect2(792, 2, 48, 28)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_qk78l"]
+texture = SubResource("AtlasTexture_wcnyk")
+texture_margin_left = 6.0
+texture_margin_top = 6.0
+texture_margin_right = 6.0
+texture_margin_bottom = 4.0
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qk78l"]
+atlas = ExtResource("1_qk78l")
+region = Rect2(16, 0, 64, 64)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_hs7uu"]
+texture = SubResource("AtlasTexture_qk78l")
+texture_margin_left = 10.0
+texture_margin_top = 14.0
+texture_margin_right = 10.0
+texture_margin_bottom = 12.0
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6iyac"]
+atlas = ExtResource("1_qk78l")
+region = Rect2(508, 360, 40, 16)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_d1ilt"]
+texture = SubResource("AtlasTexture_6iyac")
+texture_margin_left = 4.0
+texture_margin_right = 4.0
+axis_stretch_horizontal = 1
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jkdf5"]
+atlas = ExtResource("1_qk78l")
+region = Rect2(540, 328, 14, 16)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_fdnlq"]
+texture = SubResource("AtlasTexture_jkdf5")
+axis_stretch_horizontal = 1
+
+[sub_resource type="DPITexture" id="DPITexture_b0xfs"]
+_source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\"><path fill=\"#fff\" fill-opacity=\".75\" d=\"m1 3 2-2 5 5 5-5 2 2-5 5 5 5-2 2-5-5-5 5-2-2 5-5z\"/></svg>
+"
+
+[sub_resource type="DPITexture" id="DPITexture_65i3q"]
+_source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\"><circle cx=\"8\" cy=\"8\" r=\"6\" fill=\"#fefffe\" fill-opacity=\".75\"/><path fill=\"none\" stroke=\"#1a1a1a\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-opacity=\".65\" stroke-width=\"2\" d=\"m9 5-3 3 3 3\"/></svg>
+"
+
+[sub_resource type="DPITexture" id="DPITexture_1d0uv"]
+_source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\"><circle cx=\"8\" cy=\"8\" r=\"6\" fill=\"#fefffe\"/><path fill=\"none\" stroke=\"#1a1a1a\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"m9 5-3 3 3 3\"/></svg>
+"
+
+[sub_resource type="DPITexture" id="DPITexture_emxhm"]
+_source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"32\"><path fill=\"#d3d3d3\" d=\"m5 1h6v30h-6z\"/></svg>
+"
+
+[sub_resource type="DPITexture" id="DPITexture_5va6e"]
+_source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\"><circle cx=\"8\" cy=\"8\" r=\"6\" fill=\"#fefffe\" fill-opacity=\".75\"/><path fill=\"none\" stroke=\"#1a1a1a\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-opacity=\".65\" stroke-width=\"2\" d=\"m7 5 3 3-3 3\"/></svg>
+"
+
+[sub_resource type="DPITexture" id="DPITexture_6fimv"]
+_source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\"><circle cx=\"8\" cy=\"8\" r=\"6\" fill=\"#fefffe\"/><path fill=\"none\" stroke=\"#1a1a1a\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"m7 5 3 3-3 3\"/></svg>
+"
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_65i3q"]
+atlas = ExtResource("1_qk78l")
+region = Rect2(26, 186, 44, 44)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_b0xfs"]
+texture = SubResource("AtlasTexture_65i3q")
+texture_margin_left = 2.0
+texture_margin_top = 2.0
+texture_margin_right = 2.0
+texture_margin_bottom = 2.0
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_elr8q"]
+atlas = ExtResource("1_qk78l")
+region = Rect2(1280, 542, 32, 34)
+filter_clip = true
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_vmpnm"]
+texture = SubResource("AtlasTexture_elr8q")
+texture_margin_left = 6.0
+texture_margin_top = 8.0
+texture_margin_right = 6.0
+texture_margin_bottom = 6.0
+region_rect = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_05qge"]
+atlas = ExtResource("1_qk78l")
+region = Rect2(1280, 542, 32, 34)
+filter_clip = true
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_1j34g"]
+texture = SubResource("AtlasTexture_05qge")
+texture_margin_left = 6.0
+texture_margin_top = 8.0
+texture_margin_right = 6.0
+texture_margin_bottom = 6.0
+region_rect = Rect2(0, 0, 32, 32)
+
+[resource]
+Button/fonts/font = ExtResource("1_wcnyk")
+Button/styles/normal = SubResource("StyleBoxTexture_qk78l")
+Label/fonts/font = ExtResource("3_65i3q")
+Panel/styles/panel = SubResource("StyleBoxTexture_hs7uu")
+ProgressBar/styles/background = SubResource("StyleBoxTexture_d1ilt")
+ProgressBar/styles/fill = SubResource("StyleBoxTexture_fdnlq")
+TabBar/colors/drop_mark_color = Color(1, 1, 1, 1)
+TabBar/colors/font_disabled_color = Color(0.875, 0.875, 0.875, 0.5)
+TabBar/colors/font_hovered_color = Color(0.95, 0.95, 0.95, 1)
+TabBar/colors/font_outline_color = Color(0, 0, 0, 1)
+TabBar/colors/font_selected_color = Color(0.95, 0.95, 0.95, 1)
+TabBar/colors/font_unselected_color = Color(0.7, 0.7, 0.7, 1)
+TabBar/colors/icon_disabled_color = Color(1, 1, 1, 1)
+TabBar/colors/icon_hovered_color = Color(1, 1, 1, 1)
+TabBar/colors/icon_selected_color = Color(1, 1, 1, 1)
+TabBar/colors/icon_unselected_color = Color(1, 1, 1, 1)
+TabBar/constants/outline_size = 0
+TabBar/font_sizes/font_size = 16
+TabBar/fonts/font = ExtResource("1_wcnyk")
+TabBar/icons/close = SubResource("DPITexture_b0xfs")
+TabBar/icons/decrement = SubResource("DPITexture_65i3q")
+TabBar/icons/decrement_highlight = SubResource("DPITexture_1d0uv")
+TabBar/icons/drop_mark = SubResource("DPITexture_emxhm")
+TabBar/icons/increment = SubResource("DPITexture_5va6e")
+TabBar/icons/increment_highlight = SubResource("DPITexture_6fimv")
+TabContainer/colors/font_selected_color = Color(0.025363777, 0.025363786, 0.025363918, 1)
+TabContainer/colors/font_unselected_color = Color(0.06053035, 0.06053035, 0.060530342, 1)
+TabContainer/colors/icon_selected_color = Color(0.3372549, 0.34901962, 0.44705883, 1)
+TabContainer/fonts/font = ExtResource("1_wcnyk")
+TabContainer/styles/panel = SubResource("StyleBoxTexture_b0xfs")
+TabContainer/styles/tab_selected = SubResource("StyleBoxTexture_vmpnm")
+TabContainer/styles/tab_unselected = SubResource("StyleBoxTexture_1j34g")

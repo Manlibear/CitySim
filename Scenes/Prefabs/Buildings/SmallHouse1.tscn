@@ -1,0 +1,33 @@
+[gd_scene format=3 uid="uid://e8lbj18wtyyj"]
+
+[ext_resource type="Texture2D" uid="uid://dq17saalmsufb" path="res://Content/Sprites/Buildings/generic.png" id="1_bejeg"]
+[ext_resource type="PackedScene" uid="uid://cnt5n1amo1uur" path="res://Scenes/Interiors/SmallHouse1.tscn" id="2_0ojvn"]
+[ext_resource type="Script" uid="uid://bjxddwwcxirku" path="res://Presenters/Buildings/BuildingPresenter.cs" id="2_buildpres"]
+
+[node name="SmallHouse2" type="Node2D" unique_id=1997750075 groups=["ecs_entity"]]
+script = ExtResource("2_buildpres")
+InteriorScene = ExtResource("2_0ojvn")
+DoorTileOffset = Vector2i(-1, 2)
+Tags = PackedStringArray("Alice")
+Type = 1
+
+[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=1957468174]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="StaticBody2D" unique_id=1625105326]
+polygon = PackedVector2Array(-96, -64, -96, 128, -32, 128, -32, 64, 0, 64, 0, 128, 96, 128, 96, -64)
+
+[node name="HouseLowerSprite" type="Sprite2D" parent="." unique_id=1965507577]
+z_index = 10
+position = Vector2(0, 96)
+texture = ExtResource("1_bejeg")
+region_enabled = true
+region_rect = Rect2(736, 1312, 192, 64)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1344842077]
+
+[node name="HouseUpperSprite" type="Sprite2D" parent="." unique_id=617299752]
+z_index = 50
+position = Vector2(0, -32)
+texture = ExtResource("1_bejeg")
+region_enabled = true
+region_rect = Rect2(736, 1120, 192, 192)

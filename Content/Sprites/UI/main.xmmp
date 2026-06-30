@@ -1,0 +1,12 @@
+<Project>
+  <Project.ExportOptions Namespace="CitySim.UI" Class="MainWindow" OutputPath="/home/manlibear/Projects/CitySim/UI" />
+  <Grid>
+    <Panel HorizontalAlignment="Right" VerticalAlignment="Top" Padding="16" Background="white" Id="_pnlDateTime">
+      <Label Text="10th June 2025 10:58pm" TextColor="Black" />
+    </Panel>
+  
+      <Panel HorizontalAlignment="Left" VerticalAlignment="Center" Padding="16" Background="white" Id="_pnlSelectedCitizen">
+      <Label Text="Alice" TextColor="Black" />
+    </Panel>    
+  </Grid>
+</Project>

@@ -1,0 +1,25 @@
+[gd_scene format=3 uid="uid://b4yo0bkmsmix8"]
+
+[ext_resource type="Texture2D" uid="uid://divm2ca8redto" path="res://Content/Sprites/Interiors/bedroom.png" id="1_0xuom"]
+[ext_resource type="Script" uid="uid://b8uqq05dqb4a0" path="res://Presenters/LocationPresenter.cs" id="1_bbuou"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_l6he8"]
+atlas = ExtResource("1_0xuom")
+region = Rect2(263, 666, 51, 80)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_l6he8"]
+size = Vector2(32, 32)
+
+[node name="Bed" type="Node2D" unique_id=100789266]
+script = ExtResource("1_bbuou")
+Tags = PackedStringArray("sleep")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1389304747]
+position = Vector2(17, 33)
+texture = SubResource("AtlasTexture_l6he8")
+
+[node name="Area2D" type="Area2D" parent="." unique_id=1306694617]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=530396724 groups=["ecs_entity"]]
+position = Vector2(16, 48)
+shape = SubResource("RectangleShape2D_l6he8")

@@ -1,0 +1,80 @@
+[gd_resource type="Resource" script_class="CharacterSpriteLayout" format=3 uid="uid://rgnawk06b4pk"]
+
+[ext_resource type="Script" uid="uid://b76bnh6l1vwlt" path="res://Data/Characters/CharacterAnimDef.cs" id="1_m72fy"]
+[ext_resource type="Script" uid="uid://wcocjmoma4i0" path="res://Data/Characters/CharacterSpriteLayout.cs" id="2_u0mb3"]
+
+[sub_resource type="Resource" id="Resource_28ohi"]
+script = ExtResource("1_m72fy")
+AnimationName = "idle_south"
+Row = 1
+StartColumn = 18
+FrameCount = 6
+Fps = 10.0
+metadata/_custom_type_script = "uid://b76bnh6l1vwlt"
+
+[sub_resource type="Resource" id="Resource_lahlm"]
+script = ExtResource("1_m72fy")
+AnimationName = "idle_north"
+Row = 1
+StartColumn = 6
+FrameCount = 6
+Fps = 10.0
+metadata/_custom_type_script = "uid://b76bnh6l1vwlt"
+
+[sub_resource type="Resource" id="Resource_t0bah"]
+script = ExtResource("1_m72fy")
+AnimationName = "idle_east"
+Row = 1
+FrameCount = 6
+Fps = 10.0
+metadata/_custom_type_script = "uid://b76bnh6l1vwlt"
+
+[sub_resource type="Resource" id="Resource_a4emk"]
+script = ExtResource("1_m72fy")
+AnimationName = "idle_west"
+Row = 1
+StartColumn = 12
+FrameCount = 6
+Fps = 10.0
+metadata/_custom_type_script = "uid://b76bnh6l1vwlt"
+
+[sub_resource type="Resource" id="Resource_8o4lh"]
+script = ExtResource("1_m72fy")
+AnimationName = "walk_north"
+Row = 2
+StartColumn = 6
+FrameCount = 6
+Fps = 10.0
+metadata/_custom_type_script = "uid://b76bnh6l1vwlt"
+
+[sub_resource type="Resource" id="Resource_4eyd1"]
+script = ExtResource("1_m72fy")
+AnimationName = "walk_south"
+Row = 2
+StartColumn = 18
+FrameCount = 6
+Fps = 10.0
+metadata/_custom_type_script = "uid://b76bnh6l1vwlt"
+
+[sub_resource type="Resource" id="Resource_xsvd8"]
+script = ExtResource("1_m72fy")
+AnimationName = "walk_east"
+Row = 2
+FrameCount = 6
+Fps = 10.0
+metadata/_custom_type_script = "uid://b76bnh6l1vwlt"
+
+[sub_resource type="Resource" id="Resource_faun6"]
+script = ExtResource("1_m72fy")
+AnimationName = "walk_west"
+Row = 2
+StartColumn = 12
+FrameCount = 6
+Fps = 10.0
+metadata/_custom_type_script = "uid://b76bnh6l1vwlt"
+
+[resource]
+script = ExtResource("2_u0mb3")
+FrameSize = Vector2i(32, 64)
+Animations = [SubResource("Resource_28ohi"), SubResource("Resource_lahlm"), SubResource("Resource_t0bah"), SubResource("Resource_a4emk"), SubResource("Resource_8o4lh"), SubResource("Resource_4eyd1"), SubResource("Resource_xsvd8"), SubResource("Resource_faun6")]
+metadata/_custom_type_script = "uid://wcocjmoma4i0"
