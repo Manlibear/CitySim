@@ -17,8 +17,11 @@ public partial class BuildingPresenter : PresenterNode
     [Export] public Vector2I DoorTileOffset { get; set; }
     [Export] public string[] Tags { get; set; } = [];
     [Export] public LocationType Type { get; set; }
+    [Export] public Polygon2D? WindowColour {get;set;}
 
     public AnimationPlayer? DoorAnimation { get; private set; }
+
+    [Export] public float MaxLightEnergy = 1.2f;
 
     private InteriorScene? _interior;
 
@@ -46,10 +49,7 @@ public partial class BuildingPresenter : PresenterNode
                 presenter.Bootstrap();
                 
             }
-
         }
-
-
 
         Entity.Attach(new BuildingComponent
         {
@@ -77,6 +77,21 @@ public partial class BuildingPresenter : PresenterNode
         });
 
         TransitionTo(IdleState.Instance);
+    }
+
+    public override void _Process(double delta)
+    {
+        //bad2e0
+        if(WindowColour != null)
+        {
+            WindowColour.Color = DayNightCycle.Instance!.CurrentWindowColour;
+        }
+
+        var dayBlend = DayNightCycle.Instance?.DayBlend ?? 1f;
+        foreach(var light in GetNode("Lights").FindChildren("*").OfType<PointLight2D>())
+        {
+            light.Energy = Mathf.Lerp(MaxLightEnergy, 0f, dayBlend);
+        }
     }
 
     public override void _UnhandledInput(InputEvent @event)

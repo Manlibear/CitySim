@@ -43,6 +43,7 @@ public partial class PersonPresenter : PresenterNode
 
         Entity.Attach(new ScheduleComponent());
         Entity.Attach(new NeedsComponent());
+        Entity.Attach(new ActivityTypeComponent());
 
         RebuildLayers();
         TransitionTo(IdleState.Instance);

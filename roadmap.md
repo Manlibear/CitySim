@@ -17,39 +17,38 @@ Full autonomy simulation. No player character. You build the city, set the condi
 - PathfindingSystem (async Task.Run), MoveToSystem (facing + animation)
 - Tile-center coordinate convention
 - Schedule system — `ScheduleComponent` / `ScheduleSystem`, world clock, three destination resolution modes (`/MapID/TileId`, `*LocationType`, `@tag`), `LocationRegistry`
+- Needs System — `NeedsComponent { float Satiety, Energy, Social }`, decay per second via `NeedsSystem` (configurable rates in `Globals`)
+- Energy interrupt — `Energy < MinEnergyNeed` cancels current schedule, sends citizen home to sleep; sleep slows satiety decay (metabolism factor); `InterruptPathfinding()` helper cleanly detaches PathfindingComponent + resets schedule dispatch for immediate re-evaluation
+- State effect system — `OnArriveEffects` (per-schedule-entry, fired once on pathfinding arrival) + `StateEffectRegistry` / `StateSystem` (declarative enter/exit effects keyed by `ActivityType` or `(from, to)` transition, fired on any `ActivityTypeComponent` change) — general-purpose infrastructure for milestones 2+
+- Day/Night Cycle — `CanvasModulate` + `DayNightCycle` sample an Inspector-authored `Gradient`/`Curve` off `SimWorld`'s clock for ambient tint and a shared `DayBlend`; `PointLight2D` street lights and window glows (`LightCone.png` / `LightConeWide.png` light-cookie textures, standalone files rather than atlas regions since `Light2D` doesn't honour `AtlasTexture` cropping) ramp on/off it; `LightOccluder2D` on building prefabs (reusing their collision polygons) casts real shadows
+- Interior scenes register as proper map levels with their own citizens + pathfinding — cross-level pathfinding correctly resolves and places citizens in their actual interior instance
+- Citizens face the right direction on arrival — `FacingDirectionEffect` (`OnArriveEffects`) reads the destination `Location`'s `FacingDirection` and snaps the citizen to face it, e.g. toward a door
 
 ---
 
 ## 🔨 Milestone 1 — Citizens Feel Alive
 
-**Needs System**
-- `NeedsComponent { float Hunger, float Energy, float Social }` — all decay over time
-- `NeedsDecaySystem` — reduces each stat per second (configurable rates)
-- `NeedsInterruptSystem` — monitors thresholds, interrupts current schedule when critical:
-  - `Energy < 0.2` → go home, sleep
-  - `Hunger < 0.2` → go to nearest restaurant/kitchen
-  - `Social < 0.3` → go to nearest park/leisure spot
-- Sleep slows hunger decay (metabolism factor)
-- `InterruptPathfinding()` helper — cleanly detaches PathfindingComponent + MoveToComponent, resets schedule dispatch so the system re-evaluates immediately
+**Needs System (remaining)**
+- Hunger interrupt moved to Milestone 3 (tied to buying food)
+- Social interrupt moved to Milestone 4 (tied to social proximity/relationships)
+
+Milestone 1 closed out otherwise — see ✅ Complete.
 
 ---
 
 ## 🔨 Milestone 2 — World Has a Pulse
 
-**Day/Night Cycle**
-- `WorldClock` — in-game time advancing at configurable speed (TimeSpeed on SimWorld)
-- Ambient light driven by hour — full day, twilight lerp, night dark-blue
-- Street light entities emit a soft warm-orange radial glow on the light map
-- Light map multiply-blended over the scene after all sprites are drawn
-
-**Building Interiors Feel Real**
+**Building Interiors Feel Real (remaining)**
 - Occupancy system — locations have a max capacity, citizens queue outside when full
 - `QueueRegistry` — maps tile positions to queues; citizen moves to queue tile, waits turn
-- Citizens face the right direction on arrival (snap facing to door direction)
-- Interior scenes register as proper map levels with their own citizens + pathfinding
+
+**Save / Load**
+- JSON serialisation of all component state per citizen
+- `OccupancyRegistry` reconstructed from positions on load
+- World time saved and resumed
 
 **Multiple Citizens**
-- Spawn 10–20 citizens from `CitizenConfig` at scene load
+- Spawn 10–20 citizens from `CitizenConfig` at scene load — or reconstructed from a save file, via the Save/Load system above
 - Varied body/hair/clothing/face variants
 - Staggered schedules (different wake/work/eat/sleep times)
 - Names, randomised personality traits influencing decay rates
@@ -73,6 +72,7 @@ Full autonomy simulation. No player character. You build the city, set the condi
 - Shops have `InventoryComponent` — stock levels, restock triggers
 - Citizens spend money based on needs (hungry → restaurant, low mood → park/bar)
 - Price elasticity seed: expensive shops drain wallets faster, citizens seek cheaper alternatives
+- Hunger interrupt — `Satiety < MinSatietyNeed` cancels current schedule, sends citizen to nearest restaurant/kitchen to buy food (ties need-driven interrupt into the money/commerce systems above)
 
 **Property & Rent**
 - Residential buildings have units with `RentComponent { float MonthlyRent, Entity? Tenant }`
@@ -93,6 +93,7 @@ Full autonomy simulation. No player character. You build the city, set the condi
 - Idle citizens within N tiles of each other face each other and slowly restore Social
 - `SocialInteractionComponent(Entity Other, TimeSpan Until)` tracks the pair
 - On end: detach component, resume normal schedule
+- Social interrupt — `Social < MinSocialNeed` cancels current schedule, sends citizen to nearest park/leisure spot to seek out the proximity interactions above
 
 **Relationships**
 - Citizens who interact frequently build `RelationshipComponent` links
@@ -130,11 +131,6 @@ Full autonomy simulation. No player character. You build the city, set the condi
 - City council with elected officials
 - Citizens vote based on mood, wealth, and direct policy impact
 - Policies affect tax rates, zoning, services — feed back into economy
-
-**Save / Load**
-- JSON serialisation of all component state per citizen
-- `OccupancyRegistry` reconstructed from positions on load
-- World time saved and resumed
 
 **Generational Play**
 - Citizens age, retire, die

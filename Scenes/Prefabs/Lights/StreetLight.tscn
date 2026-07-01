@@ -1,0 +1,49 @@
+[gd_scene format=3 uid="uid://cvhv6lsfdefv"]
+
+[ext_resource type="Script" uid="uid://bgx22o2i2bimo" path="res://Presenters/StreetlightPresenter.cs" id="1_fjfv4"]
+[ext_resource type="Texture2D" uid="uid://c27rywdf6oi6n" path="res://Content/Sprites/Terrain/props.png" id="2_fjfv4"]
+
+[sub_resource type="Gradient" id="Gradient_light"]
+interpolation_mode = 1
+offsets = PackedFloat32Array(0, 0.33333334, 0.6388889, 0.8888889)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.60784316, 1, 1, 1, 0.2, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_light"]
+gradient = SubResource("Gradient_light")
+width = 128
+height = 128
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_l6he8"]
+atlas = ExtResource("2_fjfv4")
+region = Rect2(512, 0, 64, 128)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_l6he8"]
+size = Vector2(32, 32)
+
+[node name="StreetLight" type="Node2D" unique_id=151579445 node_paths=PackedStringArray("Light")]
+z_index = 20
+y_sort_enabled = true
+script = ExtResource("1_fjfv4")
+Light = NodePath("PointLight2D")
+
+[node name="PointLight2D" type="PointLight2D" parent="." unique_id=916963175]
+position = Vector2(44, 16)
+color = Color(1, 0.75, 0.45, 1)
+energy = 0.0
+shadow_enabled = true
+texture = SubResource("GradientTexture2D_light")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=2028462792]
+y_sort_enabled = true
+position = Vector2(32, -38)
+texture = SubResource("AtlasTexture_l6he8")
+
+[node name="Area2D" type="Area2D" parent="." unique_id=1224805634]
+y_sort_enabled = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=963466833]
+position = Vector2(16, 16)
+shape = SubResource("RectangleShape2D_l6he8")

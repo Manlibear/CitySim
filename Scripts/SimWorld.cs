@@ -50,6 +50,7 @@ public partial class SimWorld : Node
         World.Register(new MoveToSystem(World));
         World.Register(new ScheduleSystem(World));
         World.Register(new NeedsSystem(World));
+        World.Register(new StateSystem(World));
         World.Initialize();
     }
 }

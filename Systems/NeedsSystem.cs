@@ -1,6 +1,7 @@
 using System;
 using CitySim.Components;
 using CitySim.Data;
+using CitySim.Data.StateEffects;
 using CitySim.ECS;
 using CitySim.Helpers;
 using CitySim.Scripts;
@@ -53,14 +54,10 @@ public class NeedsSystem(World world) : IUpdateSystem
                     Day = sleepDt.DayOfWeek,
                     Time = TimeOnly.FromDateTime(sleepDt),
                     LocationPath = $"/{homeComp.MapID}/Bed",
-                    Type = ActivityType.Sleep,
-                    StatePayload = new()
-                    {
-                        ActivityPriority = 1,
-                        ActivityType = ActivityType.Sleep,
-                        AnimationName = "sleep",
-                        Component = new SleepComponent()
-                    }
+                    OnArriveEffects = [
+                        new ActivityTypeEffect(ActivityType.Sleep, 1)
+                    ]
+                    
                 });
 
                 scheduleComp.AddEntry(new ScheduleEntry()
@@ -68,13 +65,9 @@ public class NeedsSystem(World world) : IUpdateSystem
                     Day = wakeUpDt.DayOfWeek,
                     Time = TimeOnly.FromDateTime(wakeUpDt),
                     LocationPath = $"/{homeComp.MapID}/Bed",
-                    Type = ActivityType.WakeUp,
-                    StatePayload = new()
-                    {
-                        ActivityPriority = 3,
-                        ActivityType = ActivityType.Liesure,
-                        AnimationName = "idle"
-                    }
+                    OnArriveEffects = [
+                        new ActivityTypeEffect(ActivityType.WakeUp)
+                    ]
                 });
             }
         }

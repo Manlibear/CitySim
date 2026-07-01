@@ -51,7 +51,7 @@ public class ScheduleSystem(World world) : IUpdateSystem
                             Destination = nextEntry.Position.Value,
                             Status = PathfindingStatus.Moving,
                             Path = nextEntry.CachedPath,
-                            StatePayload = nextEntry.StatePayload,
+                            OnArriveEffects = nextEntry.OnArriveEffects
                         });
 
                         if (!nextEntry.Repeats)

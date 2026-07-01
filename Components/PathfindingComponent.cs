@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using CitySim.ECS;
 using CitySim.Data;
+using CitySim.Data.StateEffects;
 
 namespace CitySim.Components;
 
@@ -14,5 +15,5 @@ public class PathfindingComponent : IComponent
     public PathfindingStatus Status { get; set; } = PathfindingStatus.Pending;
     public Queue<WorldPosition>? Path { get; set; }
     public Task<Queue<WorldPosition>>? PendingTask { get; set; }
-    public StatePayload? StatePayload { get; set; } = null;
+    public IStateEffect[]? OnArriveEffects = null;
 }

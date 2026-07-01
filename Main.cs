@@ -5,6 +5,7 @@ using CitySim.Data;
 using CitySim.Scripts;
 using CitySim.Presenters.Person;
 using System;
+using CitySim.Data.StateEffects;
 
 namespace CitySim;
 
@@ -21,13 +22,17 @@ public partial class Main : Node2D
     public void _on_button_pressed()
     {
         GD.Print("Working");
-        var schedule = new ScheduleComponent();
+        var schedule = testPerson.Entity.Get<ScheduleComponent>();
         schedule.AddEntry(new ScheduleEntry()
         {
             Day = DayOfWeek.Saturday,
-            Time = new TimeOnly(9, 45),
-            LocationPath = "/Overworld/SmallHouse2",
-            Type = ActivityType.Liesure,
+            Time = new TimeOnly(9, 10),
+            LocationPath = "/Overworld/SmallHouse1",
+            OnArriveEffects = [
+                new ActivityTypeEffect(ActivityType.Liesure),
+                new FacingDirectionEffect(FacingDirection.South)
+             ]
+
         });
         testPerson.Entity.Attach(schedule);
     }
