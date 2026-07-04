@@ -14,7 +14,7 @@ public readonly struct Entity : IEquatable<Entity>
         _world = world;
     }
 
-    public void Attach<T>(T component) where T : class, IComponent => _world.Attach(this, component);
+    public T Attach<T>(T component) where T : class, IComponent => _world.Attach(this, component);
 
     public T Get<T>() where T : class, IComponent => _world.Get<T>(this);
 

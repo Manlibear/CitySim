@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using CitySim.Data;
+using System.Drawing;
+using System;
 
 namespace CitySim.Registries;
 
@@ -26,12 +28,21 @@ public static class MapRegistry
             PrimaryLayer = layers[0];
             foreach (var layer in layers)
             {
-                ScanWalkability(layer, Walkable);
-                ScanFenceEdges(layer, FenceEdges);
+                ScanWalkability(layer, Walkable, Vector2I.Zero);
+                ScanFenceEdges(layer, FenceEdges, Vector2I.Zero);
             }
         }
 
-        private static void ScanWalkability(TileMapLayer layer, HashSet<Vector2I> walkable)
+        public void Append(TileMapLayer[] layers, Vector2I offset)
+        {
+            foreach (var layer in layers)
+            {
+                ScanWalkability(layer, Walkable, offset);
+                ScanFenceEdges(layer, FenceEdges, offset);
+            }
+        }
+
+        private static void ScanWalkability(TileMapLayer layer, HashSet<Vector2I> walkable, Vector2I offset)
         {
             if (layer.TileSet == null || layer.TileSet.GetNavigationLayersCount() == 0) return;
 
@@ -39,14 +50,14 @@ public static class MapRegistry
             {
                 var data = layer.GetCellTileData(cell);
                 if (data?.GetNavigationPolygon(0) != null)
-                    walkable.Add(cell);
+                    walkable.Add(cell + offset);
             }
         }
 
         // fence_south on (x,y) blocks movement between (x,y) and (x,y+1).
         // fence_east  on (x,y) blocks movement between (x,y) and (x+1,y).
         // Both are bidirectional — mark the tile on either side of the fence.
-        private static void ScanFenceEdges(TileMapLayer layer, HashSet<(Vector2I, Vector2I)> edges)
+        private static void ScanFenceEdges(TileMapLayer layer, HashSet<(Vector2I, Vector2I)> edges, Vector2I offset)
         {
             var tileSet = layer.TileSet;
             if (tileSet == null) return;
@@ -63,15 +74,15 @@ public static class MapRegistry
                 if (hasSouth && data.GetCustomData("fence_south").AsBool())
                 {
                     var south = cell + new Vector2I(0, 1);
-                    edges.Add((cell, south));
-                    edges.Add((south, cell));
+                    edges.Add((cell + offset, south + offset));
+                    edges.Add((south + offset, cell + offset));
                 }
 
                 if (hasEast && data.GetCustomData("fence_east").AsBool())
                 {
                     var east = cell + new Vector2I(1, 0);
-                    edges.Add((cell, east));
-                    edges.Add((east, cell));
+                    edges.Add((cell + offset, east + offset));
+                    edges.Add((east + offset, cell + offset));
                 }
             }
         }
@@ -81,10 +92,20 @@ public static class MapRegistry
 
     // Pass any number of layers: walkability is read from nav polygons, fences from custom data.
     // All layers are scanned for both, so a dedicated fence layer just works alongside ground layers.
-    public static void Register(string MapID, params TileMapLayer[] layers)
+    public static void Register(string mapID, params TileMapLayer[] layers)
     {
         if (layers.Length == 0) return;
-        _maps[MapID] = new MapData(layers);
+        _maps[mapID] = new MapData(layers);
+    }
+
+    public static void RegisterSubMap(string mapID, Vector2I location,  params TileMapLayer[] layers)
+    {
+        if(layers.Length == 0) return;
+
+        if(!_maps.ContainsKey(mapID)) throw new ArgumentException($"Base Map {mapID} not reqistered yet");
+
+        _maps[mapID].Append(layers, location);
+
     }
 
     public static void Unregister(string MapID) => _maps.Remove(MapID);

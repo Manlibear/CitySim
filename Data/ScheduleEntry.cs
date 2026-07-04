@@ -14,10 +14,10 @@ public class ScheduleEntry
     public required TimeOnly Time { get; set; }
     public bool Repeats { get; set; }
     public required string LocationPath { get; set; }
-    public WorldPosition? Position { get; set; } = null;
-    public Queue<WorldPosition>? CachedPath { get; set; } = null;
-    public DateTime? DispatchTime { get; set; } = null;
-    public IStateEffect[]? OnArriveEffects = null;
+    [JsonIgnore] public WorldPosition? Position { get; set; } = null;
+    [JsonIgnore] public Queue<WorldPosition>? CachedPath { get; set; } = null;
+    [JsonIgnore] public DateTime? DispatchTime { get; set; } = null;
+    public IStateEffect[]? OnArriveEffects { get; set; } = null;
 
     [JsonConstructor]
     public ScheduleEntry() { }

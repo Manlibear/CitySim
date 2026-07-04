@@ -1,0 +1,89 @@
+[gd_scene format=3 uid="uid://dlkkf6eo6gee3"]
+
+[ext_resource type="Script" uid="uid://bjxddwwcxirku" path="res://Presenters/Buildings/BuildingPresenter.cs" id="1_08p8n"]
+[ext_resource type="PackedScene" uid="uid://cnt5n1amo1uur" path="res://Scenes/Interiors/SmallHouse1.tscn" id="2_a0cbi"]
+[ext_resource type="Texture2D" uid="uid://bm0l7o5xc8nbq" path="res://Content/Sprites/Buildings/school.png" id="3_08p8n"]
+[ext_resource type="Texture2D" uid="uid://dkh5ibsb1pb64" path="res://Content/Sprites/LightConeWide.png" id="4_iok15"]
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_smallhouse1"]
+polygon = PackedVector2Array(-96, -64, -96, 128, -32, 128, -32, 64, 0, 64, 0, 128, 96, 128, 96, -64)
+
+[node name="School" type="Node2D" unique_id=1997750075 node_paths=PackedStringArray("WindowColour") groups=["ecs_entity"]]
+script = ExtResource("1_08p8n")
+InteriorScene = ExtResource("2_a0cbi")
+DoorTileOffset = Vector2i(-1, 2)
+Tags = PackedStringArray("Alice")
+Type = 1
+WindowColour = NodePath("WindowColour")
+
+[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=1957468174]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="StaticBody2D" unique_id=1625105326]
+polygon = PackedVector2Array(-288, -192, -288, 96, -32, 96, -32, 0, 32, 0, 32, 96, 448, 96, 448, -192)
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="." unique_id=1195083939]
+occluder = SubResource("OccluderPolygon2D_smallhouse1")
+
+[node name="HouseLowerSprite" type="Sprite2D" parent="." unique_id=1965507577]
+z_index = 10
+position = Vector2(80, 86)
+texture = ExtResource("3_08p8n")
+region_enabled = true
+region_rect = Rect2(0, 608, 768, 160)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1344842077]
+
+[node name="HouseUpperSprite" type="Sprite2D" parent="." unique_id=617299752]
+z_index = 50
+position = Vector2(80, -282)
+texture = ExtResource("3_08p8n")
+region_enabled = true
+region_rect = Rect2(0, 32, 768, 576)
+
+[node name="WindowColour" type="Polygon2D" parent="." unique_id=1485600249]
+visible = false
+polygon = PackedVector2Array(-83, 56, -83, 97, 79, 97, 79, 57)
+
+[node name="Lights" type="Node2D" parent="." unique_id=1126596204]
+
+[node name="PointLight2D" type="PointLight2D" parent="Lights" unique_id=51409586]
+position = Vector2(-241.00003, -39)
+scale = Vector2(1.5625, 3.488889)
+color = Color(1, 1, 0.5058824, 1)
+texture = ExtResource("4_iok15")
+texture_scale = 0.25
+
+[node name="PointLight2D2" type="PointLight2D" parent="Lights" unique_id=466582381]
+position = Vector2(59.999996, -143)
+scale = Vector2(1.415, 2.07)
+color = Color(1, 1, 0.5058824, 1)
+texture = ExtResource("4_iok15")
+texture_scale = 0.25
+
+[node name="PointLight2D3" type="PointLight2D" parent="Lights" unique_id=1394954103]
+position = Vector2(269, -72)
+scale = Vector2(1.35, 1.9016669)
+color = Color(1, 1, 0.5058824, 1)
+texture = ExtResource("4_iok15")
+texture_scale = 0.25
+
+[node name="PointLight2D6" type="PointLight2D" parent="Lights" unique_id=143347951]
+position = Vector2(154, 137.00002)
+scale = Vector2(1.5750004, 3.6163368)
+color = Color(1, 1, 0.5058824, 1)
+texture = ExtResource("4_iok15")
+texture_scale = 0.25
+
+[node name="PointLight2D4" type="PointLight2D" parent="Lights" unique_id=2078435511]
+position = Vector2(-175, 53)
+scale = Vector2(1.35, 1.9016669)
+color = Color(1, 1, 0.5058824, 1)
+texture = ExtResource("4_iok15")
+texture_scale = 0.25
+
+[node name="PointLight2D8" type="PointLight2D" parent="Lights" unique_id=306956383]
+position = Vector2(-203, 153.8165)
+scale = Vector2(1.2982897, 3.6526005)
+color = Color(1, 1, 0.5058824, 1)
+texture = ExtResource("4_iok15")
+texture_scale = 0.25

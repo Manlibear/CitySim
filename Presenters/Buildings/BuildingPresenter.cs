@@ -27,6 +27,13 @@ public partial class BuildingPresenter : PresenterNode
 
     public override void Bootstrap()
     {
+        var subSceneParent = GetParent().GetParent();
+
+        if(subSceneParent != null && subSceneParent is MapChunk)
+        {
+            Name = $"{subSceneParent.Name}_{Name}";
+        }
+
         var layer = MapRegistry.GetLayer(MapRegistry.OverworldId);
         var buildingTile = layer != null
             ? layer.LocalToMap(layer.ToLocal(GlobalPosition))
@@ -81,7 +88,6 @@ public partial class BuildingPresenter : PresenterNode
 
     public override void _Process(double delta)
     {
-        //bad2e0
         if(WindowColour != null)
         {
             WindowColour.Color = DayNightCycle.Instance!.CurrentWindowColour;

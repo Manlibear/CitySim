@@ -5,4 +5,4 @@ load_path = "res://.godot/imported/ui_tilesheet.png-13d25835240d090fe230a9b77683
 
 [resource]
 atlas = SubResource("CompressedTexture2D_1b8wr")
-region = Rect2(576, 296, 8, 16)
+region = Rect2(896, 448, 32, 32)

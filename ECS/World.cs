@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CitySim.ECS;
 
@@ -24,7 +25,12 @@ public sealed class World
             store.Remove(entity.Id);
     }
 
-    public void Attach<T>(Entity entity, T component) where T : class, IComponent
+    public Entity? FindEntityByID(Guid guid)
+    {
+        return Entities.FirstOrDefault(x => x.Id == guid);
+    }
+
+    public T Attach<T>(Entity entity, T component) where T : class, IComponent
     {
         if (!_components.TryGetValue(typeof(T), out var store))
         {
@@ -33,6 +39,7 @@ public sealed class World
         }
 
         store[entity.Id] = component;
+        return component;
     }
 
     public T Get<T>(Entity entity) where T : class, IComponent
