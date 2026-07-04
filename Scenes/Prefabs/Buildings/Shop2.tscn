@@ -1,0 +1,78 @@
+[gd_scene format=3 uid="uid://yphb5hn05yuh"]
+
+[ext_resource type="Script" uid="uid://6ykp33g7dkfm" path="res://Presenters/Buildings/BuildingPresenter.cs" id="1_82rgq"]
+[ext_resource type="PackedScene" uid="uid://cnt5n1amo1uur" path="res://Scenes/Interiors/SmallHouse1.tscn" id="2_mnxqm"]
+[ext_resource type="Texture2D" uid="uid://dv4u5liic4kuo" path="res://Content/Sprites/Buildings/shops.png" id="3_53s0w"]
+[ext_resource type="Texture2D" uid="uid://dkh5ibsb1pb64" path="res://Content/Sprites/LightConeWide.png" id="4_ygbak"]
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_smallhouse1"]
+polygon = PackedVector2Array(-96, -64, -96, 128, -32, 128, -32, 64, 0, 64, 0, 128, 96, 128, 96, -64)
+
+[node name="Shop1" type="Node2D" unique_id=1997750075 node_paths=PackedStringArray("WindowColour") groups=["ecs_entity"]]
+script = ExtResource("1_82rgq")
+InteriorScene = ExtResource("2_mnxqm")
+DoorTileOffset = Vector2i(-1, 2)
+Tags = PackedStringArray("Alice")
+Type = 1
+WindowColour = NodePath("WindowColour")
+
+[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=1957468174]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="StaticBody2D" unique_id=1625105326]
+polygon = PackedVector2Array(-112, -80, -112, 144, 32, 144, 32, 80, 96, 80, 96, 144, 112, 144, 112, -79)
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="." unique_id=1195083939]
+occluder = SubResource("OccluderPolygon2D_smallhouse1")
+
+[node name="HouseLowerSprite" type="Sprite2D" parent="." unique_id=1965507577]
+z_index = 11
+y_sort_enabled = true
+position = Vector2(0, 96)
+texture = ExtResource("3_53s0w")
+region_enabled = true
+region_rect = Rect2(32, 1984, 224, 160)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1344842077]
+
+[node name="HouseUpperSprite2" type="Sprite2D" parent="." unique_id=1980932831]
+z_index = 50
+position = Vector2(0, -160)
+texture = ExtResource("3_53s0w")
+region_enabled = true
+region_rect = Rect2(320, 2912, 224, 224)
+
+[node name="HouseUpperSprite" type="Sprite2D" parent="." unique_id=617299752]
+z_index = 10
+position = Vector2(0, 16)
+texture = ExtResource("3_53s0w")
+region_enabled = true
+region_rect = Rect2(320, 1280, 224, 128)
+
+[node name="WindowColour" type="Polygon2D" parent="." unique_id=1485600249]
+z_index = 3
+y_sort_enabled = true
+polygon = PackedVector2Array(-83, 56, -83, 97, 79, 97, 79, 57)
+
+[node name="Lights" type="Node2D" parent="." unique_id=1126596204]
+position = Vector2(-2, 16)
+
+[node name="PointLight2D" type="PointLight2D" parent="Lights" unique_id=51409586]
+position = Vector2(-5.9604645e-08, 13.000004)
+scale = Vector2(2.0999997, 1.7777777)
+color = Color(1, 1, 0.5058824, 1)
+texture = ExtResource("4_ygbak")
+texture_scale = 0.25
+
+[node name="PointLight2D2" type="PointLight2D" parent="Lights" unique_id=466582381]
+position = Vector2(64.99999, 162)
+scale = Vector2(1.185, 2.844444)
+color = Color(1, 1, 0.5058824, 1)
+texture = ExtResource("4_ygbak")
+texture_scale = 0.25
+
+[node name="PointLight2D3" type="PointLight2D" parent="Lights" unique_id=1394954103]
+position = Vector2(-35, 168.00002)
+scale = Vector2(2.4625, 3.5777776)
+color = Color(1, 1, 0.5058824, 1)
+texture = ExtResource("4_ygbak")
+texture_scale = 0.25
