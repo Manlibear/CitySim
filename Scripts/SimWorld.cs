@@ -17,8 +17,8 @@ public partial class SimWorld : Node
     public static SimWorld Instance { get; private set; } = null!;
 
     [Export] public float TimeSpeed { get; set; } = 1f;
-    [Export] public float TimeMultiplier {get;set;} = 60;
-    public DateTime DateTime {get;set;} = new DateTime(2000, 01, 01, 9, 0, 0);
+    [Export] public float TimeMultiplier { get; set; } = 60;
+    public DateTime DateTime { get; set; } = new DateTime(2000, 01, 01, 9, 0, 0);
     public World World { get; } = new();
 
     public override void _Ready()
@@ -33,6 +33,11 @@ public partial class SimWorld : Node
         DateTime = DateTime.AddSeconds(delta * TimeMultiplier * TimeSpeed);
     }
 
+    // Systems receive delta already scaled by TimeSpeed (see World.Update above), and DateTime
+    // advances by delta * TimeMultiplier in-game seconds per that same delta — so converting an
+    // in-game duration into "delta units" only needs to divide out TimeMultiplier, not TimeSpeed.
+    public float SecondsFromMinutes(float minutes) => minutes * 60f / TimeMultiplier;
+
     private void Bootstrap()
     {
         var overworldLayers = GetTree().CurrentScene
@@ -44,13 +49,20 @@ public partial class SimWorld : Node
             MapRegistry.Register(MapRegistry.OverworldId, overworldLayers);
 
         var mapChunks = GetTree().CurrentScene.FindChild("MapChunks").GetChildren().OfType<MapChunk>();
-        foreach(var chunk in mapChunks)
+        foreach (var chunk in mapChunks)
             chunk.Bootstrap();
 
         foreach (var node in GetTree().GetNodesInGroup("ecs_entity"))
         {
             if (node is not PresenterNode presenter) continue;
             SpawnEntity(presenter);
+            presenter.PreBootstrap();
+        }
+
+        foreach (var node in GetTree().GetNodesInGroup("ecs_entity"))
+        {
+            if (node is not PresenterNode presenter) continue;
+            presenter.Bootstrap();
         }
 
         QueueRegistry.Init(World);
@@ -60,6 +72,12 @@ public partial class SimWorld : Node
         World.Register(new ScheduleSystem(World));
         World.Register(new NeedsSystem(World));
         World.Register(new StateSystem(World));
+        World.Register(new InventorySystem(World));
+        World.Register(new MemorySystem(World));
+        World.Register(new ConsumptionSystem(World));
+        World.Register(new ShopSystem(World));
+        World.Register(new WalletSystem(World));
+        World.Register(new SleepSystem(World));
         World.Initialize();
     }
 
@@ -67,7 +85,6 @@ public partial class SimWorld : Node
     {
         var entity = World.CreateEntity();
         presenter.AssignEntity(entity);
-        presenter.Bootstrap();
         return entity;
     }
 
@@ -93,7 +110,7 @@ public partial class SimWorld : Node
                 };
             }
 
-            citizens.Add(new CitizenSaveData
+            var citizenSaveData = new CitizenSaveData
             {
                 Name = entity.Get<NameComponent>(),
                 Position = entity.Get<WorldPositionComponent>().Position,
@@ -101,8 +118,17 @@ public partial class SimWorld : Node
                 Needs = entity.Get<NeedsComponent>(),
                 ActivityType = entity.Get<ActivityTypeComponent>(),
                 Schedule = [.. entity.Get<ScheduleComponent>().Entries],
+                Fact = [.. entity.Get<FactComponent>().Facts],
                 Pathfinding = pathfinding,
-            });
+                Wallet = WalletRegistry.Get(entity.Id)
+            };
+
+            if (entity.TryGet<JobComponent>(out var jobComponent))
+            {
+                citizenSaveData.Job = jobComponent;
+            }
+
+            citizens.Add(citizenSaveData);
         }
 
         Scripts.SaveGame.Save(new SaveGameData { WorldTime = DateTime, Citizens = citizens }, CitySim.Scripts.SaveGame.DefaultSavePath);
@@ -131,6 +157,7 @@ public partial class SimWorld : Node
             presenter.FirstName = citizenData.Name.FirstName;
             presenter.Surname = citizenData.Name.Surname;
             presenter.GlobalPosition = citizenData.Position.ToGlobalPosition();
+            WalletRegistry.Register(presenter.Entity.Id, citizenData.Wallet);
 
             overworld.AddChild(presenter);
 
@@ -140,6 +167,11 @@ public partial class SimWorld : Node
             entity.Attach(citizenData.Needs);
             entity.Attach(citizenData.ActivityType);
             entity.Attach(new WorldPositionComponent { Position = citizenData.Position });
+
+            if (citizenData.Job != null)
+            {
+                entity.Attach(citizenData.Job);
+            }
 
             var schedule = entity.Get<ScheduleComponent>();
             foreach (var entry in citizenData.Schedule)

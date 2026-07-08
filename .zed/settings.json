@@ -1,0 +1,22 @@
+{
+  "file_scan_exclusions": [
+    "**/.git",
+    "**/.svn",
+    "**/.hg",
+    "**/CVS",
+    "**/.DS_Store",
+    "**/Thumbs.db",
+    "**/.classpath",
+    "**/.settings",
+    "**/*.import",
+    "**/*.uid",
+  ],
+  "languages": {
+    "CSharp": {
+      "use_on_type_format": false,
+    },
+  },
+  "edit_predictions": {
+    "provider": "none",
+  },
+}

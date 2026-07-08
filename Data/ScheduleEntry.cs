@@ -10,14 +10,17 @@ namespace CitySim.Data;
 
 public class ScheduleEntry
 {
-    public required DayOfWeek Day { get; set; }
-    public required TimeOnly Time { get; set; }
+    public Guid ID { get; set; } = Guid.NewGuid();
+    public bool IsImmediate { get; set; }
+    public DayOfWeek? Day { get; set; }
+    public TimeOnly? Time { get; set; }
     public bool Repeats { get; set; }
     public required string LocationPath { get; set; }
     [JsonIgnore] public WorldPosition? Position { get; set; } = null;
     [JsonIgnore] public Queue<WorldPosition>? CachedPath { get; set; } = null;
     [JsonIgnore] public DateTime? DispatchTime { get; set; } = null;
     public IStateEffect[]? OnArriveEffects { get; set; } = null;
+    public ActivityPriority Priority { get; set; } = ActivityPriority.Default;
 
     [JsonConstructor]
     public ScheduleEntry() { }
@@ -28,6 +31,12 @@ public class ScheduleEntry
         Time = time;
         LocationPath = locationPath;
         Repeats = repeats;
+    }
+
+    public ScheduleEntry(string locationPath, bool isImmediate, bool repeats = false)
+    {
+        LocationPath = locationPath;
+        IsImmediate = isImmediate;
     }
 
     public ScheduleEntry(string locationPath, bool repeats = false)

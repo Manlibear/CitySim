@@ -23,6 +23,15 @@ Full autonomy simulation. No player character. You build the city, set the condi
 - Day/Night Cycle — `CanvasModulate` + `DayNightCycle` sample an Inspector-authored `Gradient`/`Curve` off `SimWorld`'s clock for ambient tint and a shared `DayBlend`; `PointLight2D` street lights and window glows (`LightCone.png` / `LightConeWide.png` light-cookie textures, standalone files rather than atlas regions since `Light2D` doesn't honour `AtlasTexture` cropping) ramp on/off it; `LightOccluder2D` on building prefabs (reusing their collision polygons) casts real shadows
 - Interior scenes register as proper map levels with their own citizens + pathfinding — cross-level pathfinding correctly resolves and places citizens in their actual interior instance
 - Citizens face the right direction on arrival — `FacingDirectionEffect` (`OnArriveEffects`) reads the destination `Location`'s `FacingDirection` and snaps the citizen to face it, e.g. toward a door
+- Occupancy system — locations have a max capacity, citizens queue outside when full
+- `QueueRegistry` — maps tile positions to queues; citizen moves to queue tile, waits turn
+- Save / Load — JSON serialisation of all component state per citizen, `OccupancyRegistry` reconstructed from positions on load, world time saved and resumed
+- Jobs — `JobComponent { string Employer, string Title }` + `EmployerRegistry` (wage/schedule lookup by employer+title); `ScheduleSystem` pulls `EmployerRegistry.GetSchedule(...)` into a citizen's schedule so they pathfind to work
+- Wallets — `Wallet`/`WalletRegistry` (Guid-keyed, mirroring the `Inventory`/`InventoryRegistry` pattern); `InventorySystem` deducts balance on purchase and rejects insufficient funds
+- Shops & Commerce loop (hunger→shop→buy→eat) — `HungerComponent` (armed/disarmed by `NeedsSystem` on the `Satiety` threshold) → `ConsumptionSystem` (branches on already-has-food-in-inventory vs. needs-to-shop, re-entrancy guarded via `Without<PathfindingComponent/BrowseShopComponent/ItemTransferRequestComponent>`) → `ShopSystem` (scores browse against `PreferenceComponent`, raises `ItemTransferRequestComponent` on a match) → `InventorySystem` (resolves the transfer against `WalletRegistry`) → `FactComponent`/`MemorySystem` (turns browse/transfer outcomes into `ShopQueryMemory` entries); `AttachComponentEffect`'s named-tuple matching JIT-fills `BrowseShopComponent.EntityID` with the arrived shop's `EntityID` on pathfinding arrival
+- Memory-driven shop avoidance — `MemoryComponent.GetAvoidStringByNegativeShopQuery` feeds `LocationRegistry.Resolve`'s `!{EntityID},{EntityID}` avoid syntax from `ConsumptionSystem`, so citizens stop returning to shops that recently let them down
+- Memory decay — `IMemory.Satisfaction` is a derived ease-out of `Age` over a `Lifespan` (`Globals.MemoryLifespanPerUnit`) that scales with `|OriginalSatisfaction|` (bigger deal → persists longer, near-zero memories fade fast)
+- Eating removes the consumed item from inventory via `InventoryEffect` (signed: positive adds, negative removes) as one of the dining trip's `OnArriveEffects`
 
 ---
 
@@ -38,41 +47,26 @@ Milestone 1 closed out otherwise — see ✅ Complete.
 
 ## 🔨 Milestone 2 — World Has a Pulse
 
-**Building Interiors Feel Real (remaining)**
-- Occupancy system — locations have a max capacity, citizens queue outside when full
-- `QueueRegistry` — maps tile positions to queues; citizen moves to queue tile, waits turn
-
-**Save / Load**
-- JSON serialisation of all component state per citizen
-- `OccupancyRegistry` reconstructed from positions on load
-- World time saved and resumed
-
-**Multiple Citizens**
-- Spawn 10–20 citizens from `CitizenConfig` at scene load — or reconstructed from a save file, via the Save/Load system above
-- Varied body/hair/clothing/face variants
-- Staggered schedules (different wake/work/eat/sleep times)
-- Names, randomised personality traits influencing decay rates
+Milestone 2 closed out — see ✅ Complete.
 
 ---
 
 ## 🔨 Milestone 3 — Economy Emerges
 
 **Jobs**
-- `JobComponent { string Employer, float Wage, Schedule WorkSchedule }`
-- Citizens pathfind to their workplace at work time, earn money on shift completion
+- Earn money on shift completion — nothing calls `EmployerRegistry.GetWage` yet
 - Buildings have a `StaffingComponent` — job slots, hiring/firing logic
 - Unemployment: citizens without jobs have more free time, lower income
 
 **Money**
-- `WalletComponent { float Balance }`
-- Shops/restaurants deduct balance on visit, reject if insufficient funds
-- Wages deposited on shift end
+- Wages deposited on shift end (blocked on the Jobs gap above)
 
 **Shops & Commerce**
+- Sleep's existing inline scheduling in `NeedsSystem` (`Energy < MinEnergyNeed` → go to bed) still hasn't moved out into an equivalent `RestSystem`/`TiredComponent` for consistency with the hunger flow — kept intentionally simple since sleep has no branching/inventory step, just not extracted yet
+- Marker components doubling as UI status icons (hungry / seeking food / eating, etc.) — no UI yet, deferred
 - Shops have `InventoryComponent` — stock levels, restock triggers
-- Citizens spend money based on needs (hungry → restaurant, low mood → park/bar)
+- Citizens spend money based on needs beyond hunger (low mood → park/bar) — waits on Mood (Milestone 4)
 - Price elasticity seed: expensive shops drain wallets faster, citizens seek cheaper alternatives
-- Hunger interrupt — `Satiety < MinSatietyNeed` cancels current schedule, sends citizen to nearest restaurant/kitchen to buy food (ties need-driven interrupt into the money/commerce systems above)
 
 **Property & Rent**
 - Residential buildings have units with `RentComponent { float MonthlyRent, Entity? Tenant }`
@@ -83,6 +77,12 @@ Milestone 1 closed out otherwise — see ✅ Complete.
 ---
 
 ## 🔨 Milestone 4 — Society Complexity
+
+**Multiple Citizens**
+- Spawn 10–20 citizens from `CitizenConfig` at scene load — or reconstructed from a save file, via the Save/Load system above
+- Varied body/hair/clothing/face variants
+- Staggered schedules (different wake/work/eat/sleep times)
+- Names, randomised personality traits influencing decay rates
 
 **Mood & Wellbeing**
 - `MoodComponent` — composite score from needs + recent events

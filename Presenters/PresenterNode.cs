@@ -20,6 +20,7 @@ public abstract partial class PresenterNode : Node2D
     internal void AssignEntity(Entity entity) => Entity = entity;
 
     // Called by SimWorld after entity is assigned. Attach initial components here.
+    public abstract void PreBootstrap();
     public abstract void Bootstrap();
 
     protected void TransitionTo(IPresenterState newState)

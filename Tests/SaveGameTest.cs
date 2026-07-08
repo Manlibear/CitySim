@@ -8,22 +8,24 @@ using CitySim.Data;
 using CitySim.Data.StateEffects;
 using CitySim.Scripts;
 using Xunit;
+using CitySim.Registries;
 
 namespace CitySim.Tests;
 
-public class SaveGameTest : TestClass
+public class SaveGameTest(Node testScene) : TestClass(testScene)
 {
+    private Guid entityId { get; set; } = Guid.NewGuid();
     private readonly string _path = Path.Combine(Path.GetTempPath(), "citysim_savegame_test.json");
     private SaveGameData _original = default!;
     private SaveGameData _loaded = default!;
     private CitizenSaveData _originalCitizen = default!;
     private CitizenSaveData _loadedCitizen = default!;
 
-    public SaveGameTest(Node testScene) : base(testScene) { }
-
     [Setup]
     public void Setup()
     {
+        WalletRegistry.Register(entityId, new Wallet() { Balance = 50 });
+
         _original = new SaveGameData
         {
             WorldTime = new DateTime(2026, 3, 14, 9, 30, 0),
@@ -34,8 +36,10 @@ public class SaveGameTest : TestClass
                     Name = new NameComponent("Alice", "Testerson"),
                     Position = new WorldPosition("Overworld", new Vector2I(12, -7)),
                     HomeMap = "SmallHouse1",
+                    Fact =  [],
                     Needs = new NeedsComponent { Satiety = 0.42f, Energy = 0.81f, Social = 0.15f },
-                    ActivityType = new ActivityTypeComponent { Type = ActivityType.Sleep, Priority = 1 },
+                    ActivityType = new ActivityTypeComponent { Type = ActivityType.Sleep, Priority = ActivityPriority.Idle },
+                    Wallet = WalletRegistry.Get(entityId),
                     Schedule =
                     [
                         new ScheduleEntry
@@ -98,6 +102,12 @@ public class SaveGameTest : TestClass
     }
 
     [Test]
+    public void WalletRoundTrip()
+    {
+        Assert.Equal(_originalCitizen.Wallet.Balance, _loadedCitizen.Wallet.Balance);
+    }
+
+    [Test]
     public void ActivityTypeRoundTrips()
     {
         Assert.Equal(_originalCitizen.ActivityType.Type, _loadedCitizen.ActivityType.Type);
@@ -153,6 +163,8 @@ public class SaveGameTest : TestClass
                 Needs = new NeedsComponent(),
                 ActivityType = new ActivityTypeComponent(),
                 Schedule = [],
+                Fact = [],
+                Wallet = WalletRegistry.Get(entityId),
                 Pathfinding = new PathfindingComponent
                 {
                     Destination = new WorldPosition("Overworld", new Vector2I(5, 5)),

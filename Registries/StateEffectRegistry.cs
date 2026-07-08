@@ -4,6 +4,7 @@ using CitySim.Data;
 using CitySim.Data.StateEffects;
 
 namespace CitySim.Registries;
+
 public static class StateEffectRegistry
 {
     private static readonly Dictionary<ActivityType, List<IStateEffect>> _byState = [];
@@ -23,6 +24,6 @@ public static class StateEffectRegistry
     public static void Initialize()
     {
         Register(ActivityType.Sleep, new AttachComponentEffect<SleepComponent>(), new PlayAnimationEffect("sleep"));
-        Register(ActivityType.WakeUp, new DetachComponentEffect<SleepComponent>(), new PlayAnimationEffect("idle"));
+        Register(ActivityType.Idle, ActivityType.Sleep, new DetachComponentEffect<SleepComponent>(), new PlayAnimationEffect("idle"));
     }
 }

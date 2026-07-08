@@ -17,19 +17,19 @@ public partial class BuildingPresenter : PresenterNode
     [Export] public Vector2I DoorTileOffset { get; set; }
     [Export] public string[] Tags { get; set; } = [];
     [Export] public LocationType Type { get; set; }
-    [Export] public Polygon2D? WindowColour {get;set;}
+    [Export] public Polygon2D? WindowColour { get; set; }
 
     public AnimationPlayer? DoorAnimation { get; private set; }
 
     [Export] public float MaxLightEnergy = 1.2f;
 
-    private InteriorScene? _interior;
+    internal InteriorScene? _interior;
 
-    public override void Bootstrap()
+    public override void PreBootstrap()
     {
         var subSceneParent = GetParent().GetParent();
 
-        if(subSceneParent != null && subSceneParent is MapChunk)
+        if (subSceneParent != null && subSceneParent is MapChunk)
         {
             Name = $"{subSceneParent.Name}_{Name}";
         }
@@ -53,8 +53,7 @@ public partial class BuildingPresenter : PresenterNode
                 if (node is not PresenterNode presenter) continue;
                 var entity = World.CreateEntity();
                 presenter.AssignEntity(entity);
-                presenter.Bootstrap();
-                
+                presenter.PreBootstrap();
             }
         }
 
@@ -78,6 +77,7 @@ public partial class BuildingPresenter : PresenterNode
         LocationRegistry.Register(new Location()
         {
             Name = Name,
+            EntityID = Entity.Id,
             Position = new WorldPosition(MapRegistry.OverworldId, doorTile),
             Tags = Tags,
             Type = Type
@@ -86,15 +86,27 @@ public partial class BuildingPresenter : PresenterNode
         TransitionTo(IdleState.Instance);
     }
 
+    public override void Bootstrap()
+    {
+        if (_interior != null)
+        {
+            foreach (var node in _interior.GetChildren().Where(x => x.IsInGroup("ecs_entity")))
+            {
+                if (node is not PresenterNode presenter) continue;
+                presenter.Bootstrap();
+            }
+        }
+    }
+
     public override void _Process(double delta)
     {
-        if(WindowColour != null)
+        if (WindowColour != null)
         {
             WindowColour.Color = DayNightCycle.Instance!.CurrentWindowColour;
         }
 
         var dayBlend = DayNightCycle.Instance?.DayBlend ?? 1f;
-        foreach(var light in GetNode("Lights").FindChildren("*").OfType<PointLight2D>())
+        foreach (var light in GetNode("Lights").FindChildren("*").OfType<PointLight2D>())
         {
             light.Energy = Mathf.Lerp(MaxLightEnergy, 0f, dayBlend);
         }

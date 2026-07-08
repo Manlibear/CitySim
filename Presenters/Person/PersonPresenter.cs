@@ -15,11 +15,13 @@ public partial class PersonPresenter : PresenterNode
 {
     [Export] public float MoveSpeed { get; set; } = 64f;
     [Export] public CharacterSpriteLayout? SpriteLayout { get; set; }
-    [Export] public string? HomeMap {get;set;}
+    [Export] public string? HomeMap { get; set; }
     [Export] public string FirstName { get; set; } = "";
     [Export] public string Surname { get; set; } = "";
 
     public FacingDirection Facing { get; set; } = FacingDirection.South;
+
+    public override void PreBootstrap() { }
 
     public override void Bootstrap()
     {
@@ -46,6 +48,8 @@ public partial class PersonPresenter : PresenterNode
         Entity.Attach(new ScheduleComponent());
         Entity.Attach(new NeedsComponent());
         Entity.Attach(new ActivityTypeComponent());
+        Entity.Attach(new FactComponent());
+        Entity.Attach(new WalletComponent());
 
         var nameComp = Entity.Attach(new NameComponent(FirstName, Surname));
         Name = $"{nameComp.FirstName} {nameComp.Surname}";

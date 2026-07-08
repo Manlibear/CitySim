@@ -60,8 +60,20 @@ public class PathfindingSystem(World world) : IUpdateSystem
                         return;
                     }
 
+                    var locationInfo = new object[0];
+                    var location = LocationRegistry.GetLocationByTile(pf.Destination);
+
+                    if (location != null)
+                    {
+                        locationInfo = [
+                            ("EntityID", location.Value.EntityID)
+                        ];
+                    }
+
+                    // locationInfo is an object[] passed as the params array itself (not wrapped in another array),
+                    // so effects see each ("Name", value) tuple individually.
                     foreach (var effect in pf.OnArriveEffects ?? [])
-                        effect.Apply(entity);
+                        effect.Apply(entity, locationInfo);
 
                     entity.Detach<PathfindingComponent>();
                     break;

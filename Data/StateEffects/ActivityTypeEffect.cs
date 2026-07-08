@@ -1,23 +1,37 @@
 using System.Text.Json.Serialization;
 using CitySim.Components;
 using CitySim.ECS;
+using CitySim.Scripts;
 
 namespace CitySim.Data.StateEffects;
 
-public class ActivityTypeEffect(ActivityType type, int priority = 3) : IStateEffect
+/// <summary>
+///
+/// </summary>
+/// <param name="type"></param>
+/// <param name="priority"></param>
+/// <param name="duration"></param>
+public class ActivityTypeEffect(ActivityType type, ActivityPriority priority = ActivityPriority.Default, double? duration = null) : IStateEffect
 {
     [JsonInclude]
-    private ActivityType Type {get;set;} = type;
+    private ActivityType Type { get; set; } = type;
 
     [JsonInclude]
-    private int Priority {get;set; } = priority;
+    private ActivityPriority Priority { get; set; } = priority;
 
-    public void Apply(Entity entity)
+    [JsonInclude]
+    private double? Duration { get; set; } = duration;
+
+    public void Apply(Entity entity, params object[] info)
     {
-        if(entity.TryGet<ActivityTypeComponent>(out var activityTypeComponent))
+        if (entity.TryGet<ActivityTypeComponent>(out var activityTypeComponent))
         {
             activityTypeComponent!.Type = Type;
             activityTypeComponent!.Priority = Priority;
+            if (Duration.HasValue)
+            {
+                activityTypeComponent!.End = SimWorld.Instance.DateTime.AddHours(Duration.Value);
+            }
         }
     }
 }

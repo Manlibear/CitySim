@@ -7,11 +7,9 @@ using CitySim.Registries;
 
 namespace CitySim.Systems;
 
-public class MoveToSystem : IUpdateSystem
+public class MoveToSystem(World world) : IUpdateSystem
 {
-    private readonly World _world;
-
-    public MoveToSystem(World world) => _world = world;
+    private readonly World _world = world;
 
     public void Update(double delta)
     {
@@ -42,10 +40,10 @@ public class MoveToSystem : IUpdateSystem
                 if (entity.TryGet<WorldPositionComponent>(out var posComp))
                 {
                     posComp!.Position = moveTo.Target;
-                    
+
                     var wt = MapRegistry.IsOnWarpTile(posComp.Position.MapID, posComp.Position.Tile);
 
-                    if(wt != null)
+                    if (wt != null)
                     {
                         var pairedWarp = MapRegistry.GetPairedWarpTile(posComp.Position.MapID, wt.Value.MapID);
                         var map = MapRegistry.GetMapInstance(wt.Value.MapID);
@@ -57,7 +55,7 @@ public class MoveToSystem : IUpdateSystem
 
                 entity.Detach<MoveToComponent>();
 
-                
+
             }
             else
             {

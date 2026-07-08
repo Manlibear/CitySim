@@ -4,6 +4,7 @@ using CitySim.Components;
 using CitySim.Data;
 using CitySim.ECS;
 using CitySim.Registries;
+using CitySim.Scripts;
 
 namespace CitySim.Systems;
 
@@ -18,16 +19,22 @@ public class StateSystem(World world) : IUpdateSystem
     {
         foreach (var entity in _world.Entities.With<ActivityTypeComponent>())
         {
-            var current = entity.Get<ActivityTypeComponent>().Type;
-
+            var activityComp = entity.Get<ActivityTypeComponent>();
+            
             if (_lastSeen.TryGetValue(entity.Id, out var previous))
             {
-                if (previous == current) continue;
-                foreach (var effect in StateEffectRegistry.Get(previous, current))
+                if (previous == activityComp.Type) continue;
+                foreach (var effect in StateEffectRegistry.Get(previous, activityComp.Type))
                     effect.Apply(entity);
             }
 
-            _lastSeen[entity.Id] = current;
+            _lastSeen[entity.Id] = activityComp.Type;
+
+            if(activityComp.End <= SimWorld.Instance.DateTime)
+            {
+                activityComp.Type = ActivityType.Idle;
+                activityComp.Priority = ActivityPriority.Idle;
+            }
         }
     }
 }

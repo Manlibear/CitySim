@@ -13,6 +13,8 @@ public class NeedsSystem(World world) : IUpdateSystem
 {
     private World _world = world;
 
+    // delta here already has TimeSpeed baked in (SimWorld._Process calls World.Update(delta * TimeSpeed)) —
+    // do not multiply anything below by SimWorld.Instance.TimeSpeed again, or decay/consumption scales by TimeSpeed^2.
     public void Update(double delta)
     {
         foreach (var entity in _world.Entities.With<NeedsComponent>().With<ScheduleComponent>().With<HomeComponent>())
@@ -20,55 +22,64 @@ public class NeedsSystem(World world) : IUpdateSystem
             var needsComp = entity.Get<NeedsComponent>();
             var scheduleComp = entity.Get<ScheduleComponent>();
 
+            foreach (var nd in needsComp.NeedsDeltas)
+            {
+                var step = Mathf.Min((float)delta, Mathf.Max(nd.Duration, 0f));
+                var fraction = nd.Duration > 0f ? step / nd.Duration : 1f;
+
+                if (nd.SatietyDelta.HasValue)
+                {
+                    var applied = nd.SatietyDelta.Value * fraction;
+                    needsComp.Satiety += applied;
+                    nd.SatietyDelta -= applied;
+                }
+
+                if (nd.EnergyDelta.HasValue)
+                {
+                    var applied = nd.EnergyDelta.Value * fraction;
+                    needsComp.Energy += applied;
+                    nd.EnergyDelta -= applied;
+                }
+
+                if (nd.SocialDelta.HasValue)
+                {
+                    var applied = nd.SocialDelta.Value * fraction;
+                    needsComp.Social += applied;
+                    nd.SocialDelta -= applied;
+                }
+
+                nd.Duration -= step;
+            }
+
+            needsComp.NeedsDeltas.RemoveAll(nd => nd.Duration <= 0f);
+
             if (entity.Has<SleepComponent>())
             {
-                needsComp.Energy += Globals.EnergyRecoverySleepRate * SimWorld.Instance.TimeSpeed * (float)delta;
-                needsComp.Satiety -= Globals.SleepMetabolismFactor * Globals.SatietyDecayRate * SimWorld.Instance.TimeSpeed * (float)delta;
+                needsComp.Energy += Globals.EnergyRecoverySleepRate * (float)delta;
+                needsComp.Satiety -= Globals.SleepMetabolismFactor * Globals.SatietyDecayRate * (float)delta;
             }
             else
             {
-                needsComp.Energy -= Globals.EnergyDecayRate * SimWorld.Instance.TimeSpeed * (float)delta;
-                needsComp.Satiety -= Globals.SatietyDecayRate * SimWorld.Instance.TimeSpeed * (float)delta;
+                needsComp.Energy -= Globals.EnergyDecayRate * (float)delta;
+                needsComp.Satiety -= Globals.SatietyDecayRate * (float)delta;
             }
 
-            needsComp.Social -= Globals.SocialDecayRate * SimWorld.Instance.TimeSpeed * (float)delta;
+            needsComp.Social -= Globals.SocialDecayRate * (float)delta;
 
             needsComp.Energy = Mathf.Clamp(needsComp.Energy, 0, 1);
             needsComp.Satiety = Mathf.Clamp(needsComp.Satiety, 0, 1);
             needsComp.Social = Mathf.Clamp(needsComp.Social, 0, 1);
 
-            if (needsComp.Energy < Globals.MinEnergyNeed &&
-            (needsComp.LastEnergySchedule == null || needsComp.LastEnergySchedule.Value.AddHours(Globals.NeedScheduleCooldownHours) < SimWorld.Instance.DateTime))
+            if (needsComp.Energy < Globals.MinEnergyNeed && !entity.Has<TiredComponent>())
             {
                 entity.InterruptPathfinding();
-                var homeComp = entity.Get<HomeComponent>();
+                entity.Attach(new TiredComponent());
+            }
 
-                var sleepDt = SimWorld.Instance.DateTime.AddMinutes(5);
-                var sleepHours = Mathf.Clamp((1.0f - needsComp.Energy) * 12f, 4f, 10f);
-                var wakeUpDt = sleepDt.AddHours(sleepHours);
-
-                needsComp.LastEnergySchedule = sleepDt;
-
-                scheduleComp.AddEntry(new ScheduleEntry()
-                {
-                    Day = sleepDt.DayOfWeek,
-                    Time = TimeOnly.FromDateTime(sleepDt),
-                    LocationPath = $"/{homeComp.MapID}/Bed",
-                    OnArriveEffects = [
-                        new ActivityTypeEffect(ActivityType.Sleep, 1)
-                    ]
-                    
-                });
-
-                scheduleComp.AddEntry(new ScheduleEntry()
-                {
-                    Day = wakeUpDt.DayOfWeek,
-                    Time = TimeOnly.FromDateTime(wakeUpDt),
-                    LocationPath = $"/{homeComp.MapID}/Bed",
-                    OnArriveEffects = [
-                        new ActivityTypeEffect(ActivityType.WakeUp)
-                    ]
-                });
+            if (needsComp.Satiety < Globals.MinSatietyNeed && !entity.Has<HungerComponent>())
+            {
+                entity.InterruptPathfinding();
+                entity.Attach(new HungerComponent("snack"));
             }
         }
     }

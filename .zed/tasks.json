@@ -1,0 +1,11 @@
+[
+  {
+    "label": "build",
+    "command": "dotnet",
+    "args": ["build"],
+  },
+  {
+    "label": "Run Tests (headless)",
+    "command": "dotnet build && $ZED_WORKTREE_ROOT/Tests/run_tests.sh",
+  },
+]

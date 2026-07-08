@@ -8,14 +8,14 @@ namespace CitySim.Data.StateEffects;
 public class FacingDirectionEffect(FacingDirection direction) : IStateEffect
 {
     [JsonInclude]
-    private FacingDirection Direction {get;set;} = direction;
-    public void Apply(Entity entity)
+    private FacingDirection Direction { get; set; } = direction;
+    public void Apply(Entity entity, params object[] info)
     {
-        if(entity.TryGet<GodotNodeComponent>(out var nodeComp))
+        if (entity.TryGet<GodotNodeComponent>(out var nodeComp))
         {
-            if(nodeComp!.Node is PersonPresenter person)
+            if (nodeComp!.Node is PersonPresenter person)
             {
-                person.Facing  = Direction;
+                person.Facing = Direction;
             }
         }
     }

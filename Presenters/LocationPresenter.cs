@@ -9,15 +9,17 @@ public partial class LocationPresenter : PresenterNode
 {
     [Export] public string[] Tags { get; set; } = [];
     [Export] public LocationType Type { get; set; }
-    [Export] public FacingDirection FacingDirection {get;set;}
+    [Export] public FacingDirection FacingDirection { get; set; }
+    public Guid EntityID => Entity.Id;
 
+    public override void PreBootstrap() { }
     public override void Bootstrap()
     {
         if (string.IsNullOrEmpty(Name)) throw new ArgumentException("Name is required on locations");
 
         var mapID = GetOwner().Name;
 
-        if (FindChild("Area2D").FindChild("CollisionShape2D") is not CollisionShape2D locationTile) 
+        if (FindChild("Area2D").FindChild("CollisionShape2D") is not CollisionShape2D locationTile)
             throw new ArgumentException("32x32 CollisionShape2D required");
 
         LocationRegistry.Register(new Location()
@@ -26,6 +28,7 @@ public partial class LocationPresenter : PresenterNode
             Name = Name,
             Tags = Tags,
             Type = Type,
+            EntityID = EntityID,
             FacingDirection = FacingDirection
         });
     }

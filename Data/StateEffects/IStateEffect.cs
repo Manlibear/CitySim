@@ -9,5 +9,5 @@ namespace CitySim.Data.StateEffects;
 [JsonDerivedType(typeof(PlayAnimationEffect), "playAnimation")]
 public interface IStateEffect
 {
-    public void Apply(Entity entity);
+    public void Apply(Entity entity, params object[] info);
 }

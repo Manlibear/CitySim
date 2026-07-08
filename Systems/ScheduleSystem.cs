@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using CitySim.Components;
 using CitySim.Data;
 using CitySim.ECS;
@@ -15,15 +16,25 @@ public class ScheduleSystem(World world) : IUpdateSystem
 
     public void Update(double delta)
     {
-        foreach (var entity in _world.Entities.With<ScheduleComponent>().With<WorldPositionComponent>().Without<PathfindingComponent>())
+        foreach (var entity in _world.Entities.With<ScheduleComponent>().With<WorldPositionComponent>().Without<PathfindingComponent>().With<ActivityTypeComponent>())
         {
             var scheduleComp = entity.Get<ScheduleComponent>();
+            var activityComp = entity.Get<ActivityTypeComponent>();
+            var schedule = scheduleComp.Entries.ToList();
             var currentWorldPos = entity.Get<WorldPositionComponent>().Position;
             var node = entity.Get<GodotNodeComponent>().Node;
+            if (entity.TryGet<JobComponent>(out var workComp))
+            {
+                schedule.AddRange(EmployerRegistry.GetSchedule(workComp!.Employer, workComp!.Title));
+            }
 
-            var nextEntry = scheduleComp.GetNext();
+            var nextEntry = schedule.GetNext();
             if (nextEntry != null)
             {
+                if (activityComp.End.HasValue && activityComp.Priority <= nextEntry.Priority) continue; // blocked by current acitivty, do not schedule
+
+
+
                 if (nextEntry.Position == null)
                 {
                     var resolvedLocaton = LocationRegistry.Resolve(nextEntry.LocationPath, currentWorldPos);
@@ -71,10 +82,14 @@ public class ScheduleSystem(World world) : IUpdateSystem
     private static DateTime GetNextOccurrence(ScheduleEntry entry)
     {
         var now = SimWorld.Instance.DateTime;
+        if (entry.IsImmediate) return now;
+
+        if (entry.Day == null || entry.Time == null) throw new ArgumentException("For non-immediate tasks Day and Time must be set");
+
         var nowMins = (int)now.DayOfWeek * 1440 + now.Hour * 60 + now.Minute;
-        var entryMins = (int)entry.Day * 1440 + entry.Time.Hour * 60 + entry.Time.Minute;
+        var entryMins = (int)entry.Day! * 1440 + entry.Time!.Value.Hour * 60 + entry.Time!.Value.Minute;
         var delta = entryMins - nowMins;
         if (delta <= 0) delta += 7 * 1440;
-        return now.AddMinutes(delta).Date.Add(entry.Time.ToTimeSpan());
+        return now.AddMinutes(delta).Date.Add(entry.Time.Value.ToTimeSpan());
     }
 }
