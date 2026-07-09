@@ -11,7 +11,7 @@ namespace CitySim.Data.StateEffects;
 /// <param name="type"></param>
 /// <param name="priority"></param>
 /// <param name="duration"></param>
-public class ActivityTypeEffect(ActivityType type, ActivityPriority priority = ActivityPriority.Default, double? duration = null) : IStateEffect
+public class ActivityTypeEffect(ActivityType type, ActivityPriority priority = ActivityPriority.Default, double? durationHours = null) : IStateEffect
 {
     [JsonInclude]
     private ActivityType Type { get; set; } = type;
@@ -20,7 +20,7 @@ public class ActivityTypeEffect(ActivityType type, ActivityPriority priority = A
     private ActivityPriority Priority { get; set; } = priority;
 
     [JsonInclude]
-    private double? Duration { get; set; } = duration;
+    private double? Duration { get; set; } = durationHours;
 
     public void Apply(Entity entity, params object[] info)
     {

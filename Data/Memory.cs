@@ -6,7 +6,7 @@ public record IMemory
     public float Satisfaction
     {
         // Ease-out toward 0 as Age approaches Lifespan — bigger OriginalSatisfaction means a
-        // longer Lifespan (set elsewhere), so severe memories fade slower than trivial ones.
+        // longer Lifespan, so severe memories fade slower than trivial ones.
         get
         {
             var progress = Lifespan > 0f ? Math.Clamp(Age / Lifespan, 0f, 1f) : 1f;

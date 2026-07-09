@@ -24,6 +24,7 @@ public static class StateEffectRegistry
     public static void Initialize()
     {
         Register(ActivityType.Sleep, new AttachComponentEffect<SleepComponent>(), new PlayAnimationEffect("sleep"));
-        Register(ActivityType.Idle, ActivityType.Sleep, new DetachComponentEffect<SleepComponent>(), new PlayAnimationEffect("idle"));
+        Register(ActivityType.Sleep, ActivityType.Idle, new DetachComponentEffect<SleepComponent>(), new PlayAnimationEffect("idle"), new ReleaseOccupancyEffect());
+        Register(ActivityType.Eat, ActivityType.Idle, new ReleaseOccupancyEffect());
     }
 }

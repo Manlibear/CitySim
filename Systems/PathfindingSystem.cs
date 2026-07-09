@@ -66,7 +66,7 @@ public class PathfindingSystem(World world) : IUpdateSystem
                     if (location != null)
                     {
                         locationInfo = [
-                            ("EntityID", location.Value.EntityID)
+                            ("EntityID", location.EntityID)
                         ];
                     }
 

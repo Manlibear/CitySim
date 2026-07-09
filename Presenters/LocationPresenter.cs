@@ -26,6 +26,7 @@ public partial class LocationPresenter : PresenterNode
         {
             Position = new WorldPosition(mapID, (Vector2I)(GetOwner<Node2D>().ToLocal(locationTile.GlobalPosition) / Globals.TileSize)),
             Name = Name,
+            Map = mapID,
             Tags = Tags,
             Type = Type,
             EntityID = EntityID,

@@ -14,7 +14,15 @@ public class WalletSystem(World world) : IUpdateSystem
         {
             if (WalletRegistry.TryGet(entity.Id, out var wallet))
             {
-                foreach (var credit in wallet!.Credits)
+                var allCredits = wallet!.Credits;
+                var allDebits = wallet!.Debits;
+
+                if (entity.TryGet<JobComponent>(out var jobComp))
+                {
+                    allCredits.Add(jobComp!.Wage);
+                }
+
+                foreach (var credit in allCredits)
                 {
                     if (SimWorld.Instance.DateTime.Day == credit.DayOfMonth &&
                     (credit.LastTransactionDate == null || credit.LastTransactionDate.Value.Month != SimWorld.Instance.DateTime.Month))
@@ -24,7 +32,7 @@ public class WalletSystem(World world) : IUpdateSystem
                     }
                 }
 
-                foreach (var debit in wallet!.Debits)
+                foreach (var debit in allDebits)
                 {
                     if (SimWorld.Instance.DateTime.Day == debit.DayOfMonth &&
                     (debit.LastTransactionDate == null || debit.LastTransactionDate.Value.Month != SimWorld.Instance.DateTime.Month))

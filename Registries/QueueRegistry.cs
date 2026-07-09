@@ -20,17 +20,25 @@ public static class QueueRegistry
         _world = world;
     }
 
-    public static Vector2I? ReserveQueuePosition(Location location, Guid entityID)
+    public static (Vector2I? Tile, int Index) GetNextQueuePositon(Location location)
     {
         if (!_queues.ContainsKey(location)) _queues.Add(location, new QueueSlot?[location.MaxQueuePositions]);
 
-        if (!_queues[location].Any(x => x == null)) return null;
+        if (!_queues[location].Any(x => x == null)) return (null, -1);
 
         var firstEmptyIdx = Array.IndexOf(_queues[location], null);
 
-        var firstEmptySpace = location.Position.Tile + Vector2IHelper.FromFacingDirection(location.QueueDirection) * firstEmptyIdx;
-        _queues[location][firstEmptyIdx] = new QueueSlot(firstEmptySpace, entityID);
-        return firstEmptySpace;
+        return (location.Position.Tile + Vector2IHelper.FromFacingDirection(location.QueueDirection!.Value) * firstEmptyIdx, firstEmptyIdx);
+    }
+
+    public static Vector2I? ReserveQueuePosition(Location location, Guid entityID)
+    {
+        var (tile, idx) = GetNextQueuePositon(location);
+
+        if(tile == null || idx >= location.MaxQueuePositions) return null;
+
+        _queues[location][idx] = new QueueSlot(tile.Value, entityID);
+        return tile.Value;
     }
 
     public static void ReleaseQueuePosition(Guid entityID, bool activateEffects = true)
@@ -74,7 +82,7 @@ public static class QueueRegistry
                 _world!.FindEntityByID(_queues[location][i]!.Value.EntityID)?.Attach(new PathfindingComponent()
                 {
                     Destination = new WorldPosition(location.Position.MapID,
-                                                       location.Position.Tile + (Vector2IHelper.FromFacingDirection(location.QueueDirection) * i))
+                                                       location.Position.Tile + (Vector2IHelper.FromFacingDirection(location.QueueDirection!.Value) * i))
                 });
             }
         }

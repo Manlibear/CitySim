@@ -1,3 +1,4 @@
+using System;
 using CitySim.ECS;
 using CitySim.Registries;
 
@@ -12,7 +13,10 @@ public class InventoryEffect(Item item, float amount) : IStateEffect
     {
         if (InventoryRegistry.TryGet(entity.Id, out var inventory))
         {
-            inventory!.Remove(Item, Amount);
+            if (Amount > 0)
+                inventory!.Add(Item, Amount);
+            else
+                inventory!.Remove(Item, Math.Abs(Amount));
         }
     }
 }

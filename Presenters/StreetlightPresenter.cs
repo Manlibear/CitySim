@@ -15,6 +15,8 @@ public partial class StreetlightPresenter : PresenterNode
         Light.Energy = Mathf.Lerp(MaxEnergy, 0f, dayBlend);
     }
 
+    public override void PreBootstrap() { }
+
     public override void Bootstrap()
     {
         var mapID = GetTree().CurrentScene.Name;

@@ -4,10 +4,10 @@ using CitySim.ECS;
 
 namespace CitySim.Components;
 
-public class DelayedEffectComponent<T>(float delay, params T[] effect) : IComponent where T : IStateEffect
+public class DelayedEffectComponent : IComponent
 {
-    public T[] Effects { get; } = effect;
-    public float Delay { get; } = delay;
+    public IStateEffect[]? Effects { get; set; }
+    public float Delay { get; set;}
     public float Elapsed { get; set; }
 
 }

@@ -80,7 +80,9 @@ public partial class BuildingPresenter : PresenterNode
             EntityID = Entity.Id,
             Position = new WorldPosition(MapRegistry.OverworldId, doorTile),
             Tags = Tags,
-            Type = Type
+            Type = Type,
+            FacingDirection = FacingDirection.North,
+            Map = MapRegistry.OverworldId
         });
 
         TransitionTo(IdleState.Instance);

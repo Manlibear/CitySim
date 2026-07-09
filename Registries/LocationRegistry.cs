@@ -9,10 +9,36 @@ namespace CitySim.Registries;
 public static class LocationRegistry
 {
     static readonly Dictionary<(string Name, string MapID), Location> _locations = [];
+    static readonly Dictionary<(string GroupName, string MapID), List<Location>> _groups = [];
 
-    public static Location? Get(string name, string map) =>
-        _locations.TryGetValue((name, map), out var loc) ? loc : null;
+    public static Location? Get(string name, string map)
+    {
+        if (name.EndsWith("*"))
+        {
+            // location group
+            var foundGroup = _groups.Where(x => x.Key.MapID == map && x.Key.GroupName == name[..^1]);
+            if (!foundGroup.Any()) return null;
 
+            return foundGroup.First().Value
+                .Select(TryResolveOccupancy)
+                .FirstOrDefault(loc => loc != null);
+        }
+
+        return _locations.TryGetValue((name, map), out var found) ? TryResolveOccupancy(found) : null;
+    }
+
+    // Single-slot locations are free/reserved wholesale; queueable ones hand back a copy with a
+    // reserved queue tile baked into Position — null means "not available, try the next candidate".
+    private static Location? TryResolveOccupancy(Location loc)
+    {
+        if (loc.MaxQueuePositions == 1)
+            return OccupancyRegistry.IsLocationReserved(loc.Name, loc.Map) ? null : loc;
+
+        var queuePos = QueueRegistry.GetNextQueuePositon(loc);
+        return queuePos.Tile == null
+            ? null
+            : loc with { Position = new WorldPosition(loc.Map, queuePos.Tile.Value), QueuePosition = queuePos.Index };
+    }
     public static bool TryGet(string name, string map, out Location? loc)
     {
         loc = Get(name, map);
@@ -27,6 +53,21 @@ public static class LocationRegistry
 
     public static void Unregister(string name, string mapID) =>
         _locations.Remove((name, mapID));
+
+    public static void AddGroupEntry(string groupName, string locationName, string mapID)
+    {
+        if (!_groups.ContainsKey((groupName, mapID)))
+            _groups[(groupName, mapID)] = [];
+
+        _groups[(groupName, mapID)].Add(_locations[(locationName, mapID)]);
+    }
+
+    public static List<Location> GetLocationsInGroup(string groupName, string mapID)
+    {
+        if (_groups.ContainsKey((groupName, mapID))) return _groups[(groupName, mapID)];
+
+        return [];
+    }
 
     public static Location? NearestOfType(LocationType locationType, WorldPosition position, Guid[] avoids)
     {
@@ -62,12 +103,12 @@ public static class LocationRegistry
                 ? throw new ArgumentException($"Invalid concrete path {path}")
                 : Get(pathParts[1], pathParts[0]),
 
-            '*' when position == null => throw new ArgumentException("Must supply position for LocationType queries"),
-            '*' when Enum.TryParse<LocationType>(pathContent, out var locationType) => NearestOfType(locationType, position.Value, avoids),
-            '*' => throw new ArgumentException($"Unrecognized location type {pathContent}"),
+            '@' when position == null => throw new ArgumentException("Must supply position for LocationType queries"),
+            '@' when Enum.TryParse<LocationType>(pathContent, out var locationType) => NearestOfType(locationType, position.Value, avoids),
+            '@' => throw new ArgumentException($"Unrecognized location type {pathContent}"),
 
-            '@' when position == null => throw new ArgumentException("Must supply position for tag queries"),
-            '@' => NearestWithTag(pathContent, position.Value, avoids),
+            '#' when position == null => throw new ArgumentException("Must supply position for tag queries"),
+            '#' => NearestWithTag(pathContent, position.Value, avoids),
 
             _ => throw new ArgumentException($"Unhandled path {path}")
         };

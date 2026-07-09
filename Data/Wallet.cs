@@ -13,7 +13,7 @@ namespace CitySim.Data
     public class ScheduledTransaction
     {
         public decimal Amount { get; set; }
-        public int DayOfMonth { get; set; }
+        public int DayOfMonth { get; set; } = 1;
         public DateTime? LastTransactionDate { get; set; }
     }
 }

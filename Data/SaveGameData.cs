@@ -23,4 +23,7 @@ public class CitizenSaveData
     public required List<ScheduleEntry> Schedule { get; set; }
     public PathfindingComponent? Pathfinding { get; set; }
     public required Wallet Wallet { get; set; }
+    public TiredComponent? TiredComponent { get; set; }
+    public HungerComponent? HungerComponent { get; set; }
+    public BrowseShopComponent? BrowseShopComponent { get; set; }
 }

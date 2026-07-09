@@ -23,17 +23,16 @@ public class ScheduleSystem(World world) : IUpdateSystem
             var schedule = scheduleComp.Entries.ToList();
             var currentWorldPos = entity.Get<WorldPositionComponent>().Position;
             var node = entity.Get<GodotNodeComponent>().Node;
-            if (entity.TryGet<JobComponent>(out var workComp))
+
+            if (entity.TryGet<JobComponent>(out var jobComp))
             {
-                schedule.AddRange(EmployerRegistry.GetSchedule(workComp!.Employer, workComp!.Title));
+                schedule.AddRange(jobComp!.Schedule);
             }
 
             var nextEntry = schedule.GetNext();
             if (nextEntry != null)
             {
                 if (activityComp.End.HasValue && activityComp.Priority <= nextEntry.Priority) continue; // blocked by current acitivty, do not schedule
-
-
 
                 if (nextEntry.Position == null)
                 {
@@ -45,7 +44,8 @@ public class ScheduleSystem(World world) : IUpdateSystem
                     }
                     else
                     {
-                        nextEntry.Position = resolvedLocaton.Value.Position;
+                        nextEntry.ResolvedLocation = resolvedLocaton;
+                        nextEntry.Position = resolvedLocaton.Position;
                         nextEntry.CachedPath = PathfindingHelper.FindCrossLevelPath(currentWorldPos.MapID, currentWorldPos.Tile, nextEntry.Position.Value);
                         var tps = (node as PersonPresenter)!.MoveSpeed / Globals.TileSize;
                         var entryDateTime = GetNextOccurrence(nextEntry);
@@ -57,6 +57,21 @@ public class ScheduleSystem(World world) : IUpdateSystem
                 {
                     if (nextEntry.DispatchTime != null && SimWorld.Instance.DateTime >= nextEntry.DispatchTime)
                     {
+                        // hate to do double the work, but we need to re-resolve the location
+                        // and recompute pathfinding as the occupancy/queueing might have change
+
+                        var resolvedLocaton = LocationRegistry.Resolve(nextEntry.LocationPath, currentWorldPos);
+                        if (resolvedLocaton == null)
+                        {
+                            // we could find it before, but it's not avaiable now, still have to chuck it out
+                            scheduleComp.RemoveEntry(nextEntry);
+                            continue;
+                        }
+
+                        nextEntry.Position = resolvedLocaton.Position;
+                        nextEntry.CachedPath = PathfindingHelper.FindCrossLevelPath(currentWorldPos.MapID, currentWorldPos.Tile, nextEntry.Position.Value);
+                        OccupancyRegistry.ReserveLocation(resolvedLocaton.Name, resolvedLocaton.Map, entity.Id);
+
                         entity.Attach(new PathfindingComponent
                         {
                             Destination = nextEntry.Position.Value,

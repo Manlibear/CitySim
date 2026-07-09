@@ -32,6 +32,7 @@ Full autonomy simulation. No player character. You build the city, set the condi
 - Memory-driven shop avoidance — `MemoryComponent.GetAvoidStringByNegativeShopQuery` feeds `LocationRegistry.Resolve`'s `!{EntityID},{EntityID}` avoid syntax from `ConsumptionSystem`, so citizens stop returning to shops that recently let them down
 - Memory decay — `IMemory.Satisfaction` is a derived ease-out of `Age` over a `Lifespan` (`Globals.MemoryLifespanPerUnit`) that scales with `|OriginalSatisfaction|` (bigger deal → persists longer, near-zero memories fade fast)
 - Eating removes the consumed item from inventory via `InventoryEffect` (signed: positive adds, negative removes) as one of the dining trip's `OnArriveEffects`
+- Money is earned by checking the Wage property on `JobComponent` during `WalletSystem`'s update
 
 ---
 
@@ -54,15 +55,9 @@ Milestone 2 closed out — see ✅ Complete.
 ## 🔨 Milestone 3 — Economy Emerges
 
 **Jobs**
-- Earn money on shift completion — nothing calls `EmployerRegistry.GetWage` yet
 - Buildings have a `StaffingComponent` — job slots, hiring/firing logic
-- Unemployment: citizens without jobs have more free time, lower income
-
-**Money**
-- Wages deposited on shift end (blocked on the Jobs gap above)
 
 **Shops & Commerce**
-- Sleep's existing inline scheduling in `NeedsSystem` (`Energy < MinEnergyNeed` → go to bed) still hasn't moved out into an equivalent `RestSystem`/`TiredComponent` for consistency with the hunger flow — kept intentionally simple since sleep has no branching/inventory step, just not extracted yet
 - Marker components doubling as UI status icons (hungry / seeking food / eating, etc.) — no UI yet, deferred
 - Shops have `InventoryComponent` — stock levels, restock triggers
 - Citizens spend money based on needs beyond hunger (low mood → park/bar) — waits on Mood (Milestone 4)

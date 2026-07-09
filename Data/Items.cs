@@ -31,7 +31,7 @@ public record ItemDefinition
     public required int SlotMax { get; set; }
     public required bool PartialUsage { get; set; }
     public float? PartialUsageStep { get; set; }
-    public NeedsDelta[]? NeedsDelta { get; set; }
+    public NeedsDelta? NeedsDelta { get; set; }
     public PartialTier[]? PartialTiers { get; set; }
 
 }

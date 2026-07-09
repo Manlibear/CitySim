@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using CitySim.Components;
 using CitySim.Data;
@@ -29,8 +30,8 @@ public class ConsumptionSystem(World world) : IUpdateSystem
                 if (satisfiedByInventory.Any())
                 {
                     var chosenItem = satisfiedByInventory.First();
-                    var diningLocation = LocationRegistry.Resolve("@dining", worldPos);
-                    if (diningLocation.HasValue)
+                    var diningLocation = LocationRegistry.Resolve("#dining", worldPos);
+                    if (diningLocation != null)
                     {
                         var consumedAmount = 1f;
                         if (chosenItem.Definition.PartialUsage && chosenItem.Definition.PartialUsageStep.HasValue)
@@ -38,25 +39,31 @@ public class ConsumptionSystem(World world) : IUpdateSystem
                             consumedAmount = chosenItem.Definition.PartialUsageStep.Value;
                         }
 
+                        if (chosenItem.Definition.NeedsDelta == null) throw new ArgumentException("NeedsDelta must be set for " + chosenItem.Item.ToString());
+
                         entity.Attach(new PathfindingComponent()
                         {
-                            Destination = diningLocation.Value.Position,
+                            Destination = diningLocation.Position,
                             OnArriveEffects = [
                                 new ActivityTypeEffect(ActivityType.Eat),
-                                new NeedsSatisfierEffect(){ NeedsDeltas = chosenItem.Definition.NeedsDelta },
-                                new InventoryEffect(chosenItem.Item, -consumedAmount)
+                                new NeedsSatisfierEffect(){ NeedsDelta = chosenItem.Definition.NeedsDelta },
+                                new InventoryEffect(chosenItem.Item, -consumedAmount),
+                                AttachComponentEffect.Create(new DelayedEffectComponent(){
+                                     Effects = [new ActivityTypeEffect(ActivityType.Idle)],
+                                     Delay = chosenItem.Definition.NeedsDelta!.Duration,
+                                })
                              ]
                         });
                     }
                 }
                 else
                 {
-                    var shopLocation = LocationRegistry.Resolve("@" + hungerComp.Tag + memoryComp.GetAvoidStringByNegativeShopQuery(ItemType.Food, hungerComp.Tag), worldPos);
-                    if (shopLocation.HasValue)
+                    var shopLocation = LocationRegistry.Resolve("#" + hungerComp.Tag + memoryComp.GetAvoidStringByNegativeShopQuery(ItemType.Food, hungerComp.Tag), worldPos);
+                    if (shopLocation != null)
                     {
                         entity.Attach(new PathfindingComponent()
                         {
-                            Destination = shopLocation.Value.Position,
+                            Destination = shopLocation.Position,
                             OnArriveEffects = [
                                   AttachComponentEffect.Create(new BrowseShopComponent(){
                                        ItemType = ItemType.Food,

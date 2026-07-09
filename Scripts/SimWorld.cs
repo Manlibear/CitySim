@@ -78,6 +78,7 @@ public partial class SimWorld : Node
         World.Register(new ShopSystem(World));
         World.Register(new WalletSystem(World));
         World.Register(new SleepSystem(World));
+        World.Register(new DelayedEffectSystem(World));
         World.Initialize();
     }
 
@@ -120,12 +121,27 @@ public partial class SimWorld : Node
                 Schedule = [.. entity.Get<ScheduleComponent>().Entries],
                 Fact = [.. entity.Get<FactComponent>().Facts],
                 Pathfinding = pathfinding,
-                Wallet = WalletRegistry.Get(entity.Id)
+                Wallet = WalletRegistry.Get(entity.Id),
             };
 
             if (entity.TryGet<JobComponent>(out var jobComponent))
             {
                 citizenSaveData.Job = jobComponent;
+            }
+
+            if (entity.TryGet<HungerComponent>(out var hungerComponent))
+            {
+                citizenSaveData.HungerComponent = hungerComponent;
+            }
+
+            if (entity.TryGet<TiredComponent>(out var tiredComponent))
+            {
+                citizenSaveData.TiredComponent = tiredComponent;
+            }
+
+            if (entity.TryGet<BrowseShopComponent>(out var browseShopComponent))
+            {
+                citizenSaveData.BrowseShopComponent = browseShopComponent;
             }
 
             citizens.Add(citizenSaveData);
@@ -169,9 +185,16 @@ public partial class SimWorld : Node
             entity.Attach(new WorldPositionComponent { Position = citizenData.Position });
 
             if (citizenData.Job != null)
-            {
                 entity.Attach(citizenData.Job);
-            }
+
+            if (citizenData.BrowseShopComponent != null)
+                entity.Attach(citizenData.BrowseShopComponent);
+
+            if (citizenData.HungerComponent != null)
+                entity.Attach(citizenData.HungerComponent);
+
+            if (citizenData.TiredComponent != null)
+                entity.Attach(citizenData.TiredComponent);
 
             var schedule = entity.Get<ScheduleComponent>();
             foreach (var entry in citizenData.Schedule)

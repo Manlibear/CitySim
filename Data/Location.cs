@@ -2,16 +2,31 @@ using System;
 
 namespace CitySim.Data;
 
-public struct Location(string name, WorldPosition position, string[] tags, LocationType type, FacingDirection facing)
+public record Location
 {
-    public string Name { get; set; } = name;
+
+    public Location() { }
+    public Location(string name, string map, WorldPosition position, string[] tags, LocationType type, FacingDirection facing, Guid entityID)
+    {
+        Name = name;
+        Map = map;
+        Position = position;
+        Tags = tags;
+        Type = type;
+        FacingDirection = facing;
+        EntityID = entityID;
+    }
+
+    public required string Name { get; set; }
+    public required string Map { get; set; }
     public required Guid EntityID { get; set; }
-    public WorldPosition Position { get; set; } = position;
-    public string[] Tags { get; set; } = tags;
-    public LocationType Type { get; set; } = type;
-    public FacingDirection FacingDirection { get; set; } = facing;
+    public required WorldPosition Position { get; set; }
+    public required string[] Tags { get; set; }
+    public required LocationType Type { get; set; }
+    public required FacingDirection FacingDirection { get; set; }
     public int MaxQueuePositions { get; set; } = 1;
-    public FacingDirection QueueDirection { get; set; }
+    public FacingDirection? QueueDirection { get; set; }
+    public int? QueuePosition { get; set; }
 }
 
 public enum LocationType

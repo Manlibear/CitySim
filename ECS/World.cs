@@ -62,8 +62,7 @@ public sealed class World
         return false;
     }
 
-    public bool Has<T>(Entity entity) where T : class, IComponent =>
-        _components.TryGetValue(typeof(T), out var store) && store.ContainsKey(entity.Id);
+    public bool Has<T>(Entity entity) where T : class, IComponent => TryGet<T>(entity, out _);
 
     public void Detach<T>(Entity entity) where T : class, IComponent
     {

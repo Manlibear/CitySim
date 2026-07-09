@@ -15,12 +15,14 @@ public class ScheduleEntry
     public DayOfWeek? Day { get; set; }
     public TimeOnly? Time { get; set; }
     public bool Repeats { get; set; }
+    public TimeOnly? EndTime { get; set; }
     public required string LocationPath { get; set; }
     [JsonIgnore] public WorldPosition? Position { get; set; } = null;
     [JsonIgnore] public Queue<WorldPosition>? CachedPath { get; set; } = null;
     [JsonIgnore] public DateTime? DispatchTime { get; set; } = null;
     public IStateEffect[]? OnArriveEffects { get; set; } = null;
     public ActivityPriority Priority { get; set; } = ActivityPriority.Default;
+    public Location? ResolvedLocation {get;set;}
 
     [JsonConstructor]
     public ScheduleEntry() { }

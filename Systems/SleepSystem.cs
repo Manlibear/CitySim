@@ -21,7 +21,7 @@ public class SleepSystem(World world) : IUpdateSystem
             {
                 var bed = LocationRegistry.Resolve($"/{homeComp!.MapID}/Bed");
                 if (bed != null)
-                    sleepPos = bed.Value.Position;
+                    sleepPos = bed.Position;
             }
             else
             {

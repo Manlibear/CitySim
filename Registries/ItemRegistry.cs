@@ -45,10 +45,8 @@ public static class ItemRegistry
             UnitPlural = "loaves",
             Tags = ["staple", "carbohydrate", "bread"],
             Description = "A loaf of white bread.",
-            NeedsDelta = [
-              // per slice
-              new() { Duration = SimWorld.Instance.SecondsFromMinutes(3), SatietyDelta = .2f }
-            ],
+            // per slice
+            NeedsDelta = new() { Duration = SimWorld.Instance.SecondsFromMinutes(3), SatietyDelta = .2f },
             SlotMax = 1,
             PartialUsage = true,
             PartialUsageStep = .05f, // 20 slices of bread per loaf
