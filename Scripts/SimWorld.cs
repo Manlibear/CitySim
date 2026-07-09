@@ -9,12 +9,15 @@ using CitySim.Presenters.Person;
 using CitySim.Registries;
 using CitySim.Systems;
 using System;
+using CitySim.Data.Facts;
 
 namespace CitySim.Scripts;
 
 public partial class SimWorld : Node
 {
-    public static SimWorld Instance { get; private set; } = null!;
+    // internal (not private) so tests can construct a bare SimWorld and assign Instance directly,
+    // without going through _Ready()/Bootstrap() (which expects a full game scene tree).
+    public static SimWorld Instance { get; internal set; } = null!;
 
     [Export] public float TimeSpeed { get; set; } = 1f;
     [Export] public float TimeMultiplier { get; set; } = 60;
@@ -65,7 +68,11 @@ public partial class SimWorld : Node
             presenter.Bootstrap();
         }
 
-        QueueRegistry.Init(World);
+
+        WalletRegistry.Initialize();
+        InventoryRegistry.Initialize();
+        OccupancyRegistry.Initialize();
+        QueueRegistry.Initialize(World);
 
         World.Register(new PathfindingSystem(World));
         World.Register(new MoveToSystem(World));
@@ -82,9 +89,11 @@ public partial class SimWorld : Node
         World.Initialize();
     }
 
-    public Entity SpawnEntity(PresenterNode presenter)
+    public Entity SpawnEntity(PresenterNode presenter) => SpawnEntity(presenter, Guid.NewGuid());
+
+    public Entity SpawnEntity(PresenterNode presenter, Guid id)
     {
-        var entity = World.CreateEntity();
+        var entity = World.CreateEntity(id);
         presenter.AssignEntity(entity);
         return entity;
     }
@@ -113,6 +122,7 @@ public partial class SimWorld : Node
 
             var citizenSaveData = new CitizenSaveData
             {
+                Id = entity.Id,
                 Name = entity.Get<NameComponent>(),
                 Position = entity.Get<WorldPositionComponent>().Position,
                 HomeMap = entity.TryGet<HomeComponent>(out var home) ? home!.MapID : null,
@@ -122,37 +132,49 @@ public partial class SimWorld : Node
                 Fact = [.. entity.Get<FactComponent>().Facts],
                 Pathfinding = pathfinding,
                 Wallet = WalletRegistry.Get(entity.Id),
+                MemoryComponent = entity.Get<MemoryComponent>(),
+                PreferenceComponent = entity.Get<PreferenceComponent>()
             };
 
             if (entity.TryGet<JobComponent>(out var jobComponent))
-            {
                 citizenSaveData.Job = jobComponent;
-            }
 
             if (entity.TryGet<HungerComponent>(out var hungerComponent))
-            {
                 citizenSaveData.HungerComponent = hungerComponent;
-            }
 
             if (entity.TryGet<TiredComponent>(out var tiredComponent))
-            {
                 citizenSaveData.TiredComponent = tiredComponent;
-            }
 
             if (entity.TryGet<BrowseShopComponent>(out var browseShopComponent))
-            {
                 citizenSaveData.BrowseShopComponent = browseShopComponent;
-            }
+
+            if (entity.TryGet<DelayedEffectComponent>(out var delayedEffectComponent))
+                citizenSaveData.DelayedEffectComponent = delayedEffectComponent;
+
+            if (entity.TryGet<SleepComponent>(out var sleepComponent))
+                citizenSaveData.SleepComponent = sleepComponent;
 
             citizens.Add(citizenSaveData);
         }
 
-        Scripts.SaveGame.Save(new SaveGameData { WorldTime = DateTime, Citizens = citizens }, CitySim.Scripts.SaveGame.DefaultSavePath);
+        Scripts.SaveGame.Save(new SaveGameData
+        {
+            WorldTime = DateTime,
+            Citizens = citizens,
+            Registries = new()
+            {
+                Wallets = WalletRegistry.Get(),
+                Inventories = InventoryRegistry.Get(),
+                OccupiedLocations = OccupancyRegistry.Get(),
+                Queues = QueueRegistry.Get()
+            }
+
+        }, Scripts.SaveGame.DefaultSavePath);
     }
 
     public void LoadGame()
     {
-        var data = Scripts.SaveGame.Load(CitySim.Scripts.SaveGame.DefaultSavePath);
+        var data = Scripts.SaveGame.Load(Scripts.SaveGame.DefaultSavePath);
 
         foreach (var entity in World.Entities.With<NeedsComponent>().With<WorldPositionComponent>().With<ScheduleComponent>().ToArray())
         {
@@ -162,6 +184,20 @@ public partial class SimWorld : Node
         }
 
         DateTime = data.WorldTime;
+
+        WalletRegistry.Initialize();
+        foreach (var (id, wallet) in data.Registries.Wallets)
+            WalletRegistry.Register(id, wallet);
+
+        InventoryRegistry.Initialize();
+        foreach (var (id, inventory) in data.Registries.Inventories)
+            InventoryRegistry.Register(id, inventory);
+
+        OccupancyRegistry.Initialize();
+        OccupancyRegistry.Restore(data.Registries.OccupiedLocations);
+
+        QueueRegistry.Initialize(World);
+        QueueRegistry.Restore(data.Registries.Queues);
 
         var personScene = GD.Load<PackedScene>("res://Scenes/Prefabs/Characters/person.tscn");
         var overworld = GetParent();
@@ -173,15 +209,19 @@ public partial class SimWorld : Node
             presenter.FirstName = citizenData.Name.FirstName;
             presenter.Surname = citizenData.Name.Surname;
             presenter.GlobalPosition = citizenData.Position.ToGlobalPosition();
-            WalletRegistry.Register(presenter.Entity.Id, citizenData.Wallet);
 
             overworld.AddChild(presenter);
 
-            var entity = SpawnEntity(presenter);
+            var entity = SpawnEntity(presenter, citizenData.Id);
+            presenter.PreBootstrap();
+            presenter.Bootstrap();
+            WalletRegistry.Register(entity.Id, citizenData.Wallet);
 
             entity.Attach(citizenData.Name);
             entity.Attach(citizenData.Needs);
             entity.Attach(citizenData.ActivityType);
+            entity.Attach(citizenData.MemoryComponent);
+            entity.Attach(citizenData.PreferenceComponent);
             entity.Attach(new WorldPositionComponent { Position = citizenData.Position });
 
             if (citizenData.Job != null)
@@ -196,6 +236,15 @@ public partial class SimWorld : Node
             if (citizenData.TiredComponent != null)
                 entity.Attach(citizenData.TiredComponent);
 
+            if (citizenData.DelayedEffectComponent != null)
+                entity.Attach(citizenData.DelayedEffectComponent);
+
+            if (citizenData.SleepComponent != null)
+                entity.Attach(citizenData.SleepComponent);
+
+            entity.Attach(new FactComponent() { Facts = new Queue<IFact>(citizenData.Fact) });
+
+
             var schedule = entity.Get<ScheduleComponent>();
             foreach (var entry in citizenData.Schedule)
                 schedule.AddEntry(entry);
@@ -203,5 +252,7 @@ public partial class SimWorld : Node
             if (citizenData.Pathfinding != null)
                 entity.Attach(citizenData.Pathfinding);
         }
+
+        World.Initialize();
     }
 }

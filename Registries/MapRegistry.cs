@@ -13,7 +13,9 @@ public static class MapRegistry
 
     private sealed class MapData
     {
-        public TileMapLayer PrimaryLayer { get; }
+        // Null for test maps registered via RegisterTestMap — nothing needing world-space
+        // conversion (MoveToComponent, interior scene lookup) should run against those.
+        public TileMapLayer? PrimaryLayer { get; }
         public HashSet<Vector2I> Walkable { get; } = [];
 
         // Blocked directed edges: (from, to) means you cannot step from `from` to `to`.
@@ -31,6 +33,19 @@ public static class MapRegistry
                 ScanWalkability(layer, Walkable, Vector2I.Zero);
                 ScanFenceEdges(layer, FenceEdges, Vector2I.Zero);
             }
+        }
+
+        // Test-only path: skip the TileSet/TileMapLayer scan entirely and hand walkability
+        // straight to the pathfinder, which only ever reads Walkable/FenceEdges anyway.
+        // movementLayer is optional and unrelated to the scan — pass a bare TileMapLayer
+        // (just needs TileSet.TileSize set, nothing painted on it) if the test needs real
+        // per-tile MoveToComponent stepping (e.g. to interrupt a citizen mid-route); omit it
+        // for tests that only care whether a path exists, which resolves in a single tick.
+        public MapData(IEnumerable<Vector2I> walkable, IEnumerable<(Vector2I From, Vector2I To)>? fenceEdges, TileMapLayer? movementLayer = null)
+        {
+            PrimaryLayer = movementLayer;
+            Walkable = [.. walkable];
+            FenceEdges = fenceEdges != null ? [.. fenceEdges] : [];
         }
 
         public void Append(TileMapLayer[] layers, Vector2I offset)
@@ -97,6 +112,13 @@ public static class MapRegistry
         if (layers.Length == 0) return;
         _maps[mapID] = new MapData(layers);
     }
+
+    // Test-only: register a map from raw walkable tiles/fence edges, no TileMapLayer/TileSet
+    // scan required — exercises the real A* logic against hardcoded tiles. Pass movementLayer
+    // (a bare TileMapLayer with just TileSet.TileSize set, nothing painted) if the test needs
+    // real per-tile MoveToComponent stepping rather than instant single-tick arrival.
+    public static void RegisterTestMap(string mapID, IEnumerable<Vector2I> walkable, IEnumerable<(Vector2I From, Vector2I To)>? fenceEdges = null, TileMapLayer? movementLayer = null) =>
+        _maps[mapID] = new MapData(walkable, fenceEdges, movementLayer);
 
     public static void RegisterSubMap(string mapID, Vector2I location,  params TileMapLayer[] layers)
     {

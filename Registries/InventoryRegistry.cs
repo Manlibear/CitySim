@@ -6,12 +6,15 @@ namespace CitySim.Registries
 {
     public class InventoryRegistry
     {
-        private static Dictionary<Guid, Inventory> _inventories { get; set; } = [];
+        private static Dictionary<Guid, Inventory> _inventories { get; set; }
 
-        public static void Register(Guid guid)
-        {
-            _inventories[guid] = new Inventory();
-        }
+        public static void Initialize() => _inventories = [];
+
+        public static Dictionary<Guid, Inventory> Get() => _inventories;
+
+        public static void Register(Guid guid) => _inventories[guid] = new Inventory();
+
+        public static void Register(Guid guid, Inventory inventory) =>_inventories[guid] = inventory;
 
         public static bool TryGet(Guid guid, out Inventory? inventory)
         {

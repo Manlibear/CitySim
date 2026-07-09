@@ -9,6 +9,7 @@ using CitySim.Data.StateEffects;
 using CitySim.Scripts;
 using Xunit;
 using CitySim.Registries;
+using CitySim.ECS;
 
 namespace CitySim.Tests;
 
@@ -24,6 +25,12 @@ public class SaveGameTest(Node testScene) : TestClass(testScene)
     [Setup]
     public void Setup()
     {
+        var world = new World();
+        WalletRegistry.Initialize();
+        InventoryRegistry.Initialize();
+        OccupancyRegistry.Initialize();
+        QueueRegistry.Initialize(world);
+
         WalletRegistry.Register(entityId, new Wallet() { Balance = 50 });
 
         _original = new SaveGameData
@@ -33,6 +40,7 @@ public class SaveGameTest(Node testScene) : TestClass(testScene)
             [
                 new CitizenSaveData
                 {
+                    Id = entityId,
                     Name = new NameComponent("Alice", "Testerson"),
                     Position = new WorldPosition("Overworld", new Vector2I(12, -7)),
                     HomeMap = "SmallHouse1",
@@ -40,6 +48,8 @@ public class SaveGameTest(Node testScene) : TestClass(testScene)
                     Needs = new NeedsComponent { Satiety = 0.42f, Energy = 0.81f, Social = 0.15f },
                     ActivityType = new ActivityTypeComponent { Type = ActivityType.Sleep, Priority = ActivityPriority.Idle },
                     Wallet = WalletRegistry.Get(entityId),
+                    PreferenceComponent = new PreferenceComponent(),
+                    MemoryComponent = new MemoryComponent(),
                     Schedule =
                     [
                         new ScheduleEntry
@@ -62,6 +72,13 @@ public class SaveGameTest(Node testScene) : TestClass(testScene)
                     },
                 },
             ],
+            Registries = new()
+            {
+                Inventories = InventoryRegistry.Get(),
+                OccupiedLocations = OccupancyRegistry.Get(),
+                Queues = QueueRegistry.Get(),
+                Wallets = WalletRegistry.Get()
+            }
         };
 
         SaveGame.Save(_original, _path);
@@ -158,12 +175,15 @@ public class SaveGameTest(Node testScene) : TestClass(testScene)
         {
             var citizen = new CitizenSaveData
             {
+                Id = Guid.Parse("cbd8c0d6-b4dd-4ec4-9855-aff9ca9191f8"),
                 Name = new NameComponent("Bob", "Testerson"),
                 Position = new WorldPosition("Overworld", Vector2I.Zero),
                 Needs = new NeedsComponent(),
                 ActivityType = new ActivityTypeComponent(),
                 Schedule = [],
                 Fact = [],
+                MemoryComponent = new MemoryComponent(),
+                PreferenceComponent = new PreferenceComponent(),
                 Wallet = WalletRegistry.Get(entityId),
                 Pathfinding = new PathfindingComponent
                 {
@@ -172,7 +192,18 @@ public class SaveGameTest(Node testScene) : TestClass(testScene)
                 },
             };
 
-            var data = new SaveGameData { WorldTime = DateTime.Now, Citizens = [citizen] };
+            var data = new SaveGameData
+            {
+                WorldTime = DateTime.Now,
+                Citizens = [citizen],
+                Registries = new()
+                {
+                    Inventories = InventoryRegistry.Get(),
+                    OccupiedLocations = OccupancyRegistry.Get(),
+                    Queues = QueueRegistry.Get(),
+                    Wallets = WalletRegistry.Get()
+                }
+            };
             SaveGame.Save(data, _path);
             var reloaded = SaveGame.Load(_path);
 

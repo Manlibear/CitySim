@@ -9,5 +9,5 @@ public class BrowseShopComponent : IComponent
 {
     public Guid EntityID { get; set; }
     public ItemType ItemType { get; set; }
-    public string Tag { get; set; }
+    public string? Tag { get; set; }
 }

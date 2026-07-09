@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using CitySim.Components;
@@ -21,8 +22,10 @@ public class ShopSystem(World world) : IUpdateSystem
 
             if (InventoryRegistry.TryGet(browseComp.EntityID, out var sellerInventory))
             {
+                if(browseComp.Tag == null) throw new ArgumentException("Tried to Browse with a null Tag");
+
                 var browseResults = sellerInventory!.GetPreferenceScoredCollection(browseComp.ItemType, browseComp.Tag, typePreferences);
-                var success = browseResults[0].Score > 0;
+                var success = browseResults.Count > 0 && browseResults[0].Score > 0;
 
                 entity.Get<FactComponent>().Add(new BrowseResultFact(browseComp.EntityID, browseComp.ItemType, browseComp.Tag, success, browseResults.Sum(x => x.Score)));
 

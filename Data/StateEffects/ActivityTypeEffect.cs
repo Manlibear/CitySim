@@ -20,7 +20,7 @@ public class ActivityTypeEffect(ActivityType type, ActivityPriority priority = A
     private ActivityPriority Priority { get; set; } = priority;
 
     [JsonInclude]
-    private double? Duration { get; set; } = durationHours;
+    private double? DurationHours { get; set; } = durationHours;
 
     public void Apply(Entity entity, params object[] info)
     {
@@ -28,9 +28,9 @@ public class ActivityTypeEffect(ActivityType type, ActivityPriority priority = A
         {
             activityTypeComponent!.Type = Type;
             activityTypeComponent!.Priority = Priority;
-            if (Duration.HasValue)
+            if (DurationHours.HasValue)
             {
-                activityTypeComponent!.End = SimWorld.Instance.DateTime.AddHours(Duration.Value);
+                activityTypeComponent!.End = SimWorld.Instance.DateTime.AddHours(DurationHours.Value);
             }
         }
     }

@@ -13,20 +13,38 @@ namespace CitySim.Registries;
 public static class QueueRegistry
 {
     private static World? _world;
-    private static Dictionary<Location, QueueSlot?[]> _queues = [];
 
-    public static void Init(World world)
+    // Keyed on LocationKey (Name, Map) rather than the whole Location — Location carries a
+    // string[] Tags field, and record-generated equality compares arrays by reference, not
+    // content, so a deserialized Location (fresh array instances) would never match a live one
+    // as a dictionary key.
+    private static Dictionary<LocationKey, QueueEntry> _queues;
+
+    public static void Initialize(World world)
     {
         _world = world;
+        _queues = [];
     }
+
+    public static List<QueueEntry> Get() => [.. _queues.Values];
+
+    public static void Restore(List<QueueEntry> entries)
+    {
+        _queues = [];
+        foreach (var entry in entries)
+            _queues[entry.Location] = entry;
+    }
+
+    public static void Register(Location location, QueueSlot?[] slots) => _queues[location] = new QueueEntry(location, slots);
 
     public static (Vector2I? Tile, int Index) GetNextQueuePositon(Location location)
     {
-        if (!_queues.ContainsKey(location)) _queues.Add(location, new QueueSlot?[location.MaxQueuePositions]);
+        if (!_queues.ContainsKey(location)) _queues[location] = new QueueEntry(location, new QueueSlot?[location.MaxQueuePositions]);
 
-        if (!_queues[location].Any(x => x == null)) return (null, -1);
+        var slots = _queues[location].Slots;
+        if (!slots.Any(x => x == null)) return (null, -1);
 
-        var firstEmptyIdx = Array.IndexOf(_queues[location], null);
+        var firstEmptyIdx = Array.IndexOf(slots, null);
 
         return (location.Position.Tile + Vector2IHelper.FromFacingDirection(location.QueueDirection!.Value) * firstEmptyIdx, firstEmptyIdx);
     }
@@ -35,9 +53,9 @@ public static class QueueRegistry
     {
         var (tile, idx) = GetNextQueuePositon(location);
 
-        if(tile == null || idx >= location.MaxQueuePositions) return null;
+        if (tile == null || idx >= location.MaxQueuePositions) return null;
 
-        _queues[location][idx] = new QueueSlot(tile.Value, entityID);
+        _queues[location].Slots[idx] = new QueueSlot(tile.Value, entityID);
         return tile.Value;
     }
 
@@ -45,14 +63,16 @@ public static class QueueRegistry
     {
         if (_world == null) throw new Exception("Init hasn't been called on QueueRegistry");
 
-        if (!_queues.Any(x => x.Value.Any(y => y?.EntityID == entityID))) throw new ArgumentException("Unexpected queue location");
+        if (!_queues.Any(x => x.Value.Slots.Any(y => y?.EntityID == entityID))) throw new ArgumentException("Unexpected queue location");
 
-        var location = _queues.FirstOrDefault(x => x.Value.Any(x => x?.EntityID == entityID)).Key;
+        var (_, entry) = _queues.FirstOrDefault(x => x.Value.Slots.Any(y => y?.EntityID == entityID));
+        var location = entry.Location;
+        var slots = entry.Slots;
 
-        if (!_queues[location].Any(x => x?.EntityID == entityID)) throw new ArgumentException("Unexpected entity in queue");
+        if (!slots.Any(x => x?.EntityID == entityID)) throw new ArgumentException("Unexpected entity in queue");
 
-        var queuePosition = _queues[location].First(x => x?.EntityID == entityID);
-        var queuePositionIdx = Array.IndexOf(_queues[location], queuePosition);
+        var queuePosition = slots.First(x => x?.EntityID == entityID);
+        var queuePositionIdx = Array.IndexOf(slots, queuePosition);
 
         if (activateEffects)
         {
@@ -71,15 +91,15 @@ public static class QueueRegistry
             }
         }
 
-        _queues[location][queuePositionIdx] = null;
+        slots[queuePositionIdx] = null;
 
         for (int i = queuePositionIdx; i < location.MaxQueuePositions - 1; i++)
         {
-            _queues[location][i] = _queues[location][i + 1];
+            slots[i] = slots[i + 1];
 
-            if (_queues[location][i] != null)
+            if (slots[i] != null)
             {
-                _world!.FindEntityByID(_queues[location][i]!.Value.EntityID)?.Attach(new PathfindingComponent()
+                _world!.FindEntityByID(slots[i]!.Value.EntityID)?.Attach(new PathfindingComponent()
                 {
                     Destination = new WorldPosition(location.Position.MapID,
                                                        location.Position.Tile + (Vector2IHelper.FromFacingDirection(location.QueueDirection!.Value) * i))

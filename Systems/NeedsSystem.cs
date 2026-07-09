@@ -75,11 +75,19 @@ public class NeedsSystem(World world) : IUpdateSystem
                 entity.InterruptPathfinding();
                 entity.Attach(new TiredComponent());
             }
+            else if (needsComp.Energy >= Globals.MinEnergyNeed && entity.Has<TiredComponent>())
+            {
+                entity.Detach<TiredComponent>();
+            }
 
             if (needsComp.Satiety < Globals.MinSatietyNeed && !entity.Has<HungerComponent>())
             {
                 entity.InterruptPathfinding();
                 entity.Attach(new HungerComponent("snack"));
+            }
+            else if (needsComp.Satiety >= Globals.MinSatietyNeed && entity.Has<HungerComponent>())
+            {
+                entity.Detach<HungerComponent>();
             }
         }
     }

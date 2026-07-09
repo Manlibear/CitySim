@@ -38,7 +38,8 @@ public static class ItemRegistry
 
     private readonly static Dictionary<Item, ItemDefinition> _items = new()
     {
-        [Item.WhiteBread] = {
+        [Item.WhiteBread] = new()
+        {
             Type = ItemType.Food,
             Name = "White bread",
             UnitSingular = "loaf",
@@ -56,6 +57,19 @@ public static class ItemRegistry
                 new(.25f, "A quarter of a loaf of", "a quarter", true),
                 new(.0f, "A few slices of", "a few slices", false),
             ]
+        },
+        [Item.BagOfPeanuts] = new()
+        {
+            Type = ItemType.Food,
+            Name = "Bag of peanuts",
+            UnitSingular = "bag",
+            UnitPlural = "bags",
+            Description = "Lovely salted roasted peanuts",
+            PartialUsage = false,
+            SlotMax = 5,
+            Tags = ["salty", "savoury", "nutty", "snack"],
+            NeedsDelta = new() { Duration = SimWorld.Instance.SecondsFromMinutes(1), SatietyDelta = .2f },
+
         }
     };
 

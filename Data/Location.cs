@@ -29,6 +29,11 @@ public record Location
     public int? QueuePosition { get; set; }
 }
 
+public record LocationKey(string Name, string Map)
+{
+    public static implicit operator LocationKey(Location location) => new(location.Name, location.Map);
+}
+
 public enum LocationType
 {
     Generic,

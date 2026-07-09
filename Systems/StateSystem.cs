@@ -10,17 +10,26 @@ namespace CitySim.Systems;
 
 public class StateSystem(World world) : IUpdateSystem
 {
-    private readonly World _world = world;
-    private readonly Dictionary<Guid, ActivityType> _lastSeen = [];
+    private Dictionary<Guid, ActivityType> _lastSeen = [];
 
-    public void Initialize() => StateEffectRegistry.Initialize();
+    public void Initialize()
+    {
+        StateEffectRegistry.Initialize();
+        _lastSeen = [];
+
+        foreach (var entity in world.Entities.With<ActivityTypeComponent>())
+        {
+            _lastSeen[entity.Id] = entity.Get<ActivityTypeComponent>().Type;
+        }
+    }
+
 
     public void Update(double delta)
     {
-        foreach (var entity in _world.Entities.With<ActivityTypeComponent>())
+        foreach (var entity in world.Entities.With<ActivityTypeComponent>())
         {
             var activityComp = entity.Get<ActivityTypeComponent>();
-            
+
             if (_lastSeen.TryGetValue(entity.Id, out var previous))
             {
                 if (previous == activityComp.Type) continue;
@@ -30,7 +39,7 @@ public class StateSystem(World world) : IUpdateSystem
 
             _lastSeen[entity.Id] = activityComp.Type;
 
-            if(activityComp.End <= SimWorld.Instance.DateTime)
+            if (activityComp.End <= SimWorld.Instance.DateTime)
             {
                 activityComp.Type = ActivityType.Idle;
                 activityComp.Priority = ActivityPriority.Idle;

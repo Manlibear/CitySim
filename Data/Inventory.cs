@@ -1,21 +1,27 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using CitySim.Registries;
 
 namespace CitySim.Data;
 
 public class Inventory
 {
+    [JsonInclude]
     readonly List<InventorySlot> _slots = [];
 
     public float GetAmount(Item item) => _slots.Where(x => x.Item == item).Sum(x => x.Amount);
     public string GetAmountString(Item item) => ItemRegistry.GetAmountDescription(item, GetAmount(item));
 
-    public void Add(Item item, float amount)
+    // cost is null for a citizen's own inventory (nothing to sell to themselves) and set when
+    // stocking a shop — GetPreferenceScoredCollection only offers priced slots up for sale.
+    // Matching slots only merge if their price matches too, so restocking at a new price starts
+    // a fresh slot rather than blending into (and silently repricing) older stock.
+    public void Add(Item item, float amount, decimal? cost = null)
     {
         var itemDef = ItemRegistry.Get(item);
-        var existingSlots = _slots.Where(x => x.Item == item);
+        var existingSlots = _slots.Where(x => x.Item == item && x.Cost == cost);
 
         if (existingSlots.Any())
         {
@@ -30,14 +36,14 @@ public class Inventory
 
         if (amount <= itemDef.SlotMax)
         {
-            _slots.Add(new(item, amount));
+            _slots.Add(new(item, amount, cost));
             return;
         }
 
         while (amount > 0)
         {
             var amountToAdd = Math.Min(itemDef.SlotMax, amount);
-            _slots.Add(new(item, amountToAdd));
+            _slots.Add(new(item, amountToAdd, cost));
             amount -= amountToAdd;
         }
     }

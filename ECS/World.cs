@@ -10,10 +10,13 @@ public sealed class World
     private readonly Dictionary<Type, Dictionary<Guid, IComponent>> _components = [];
     private readonly List<IUpdateSystem> _updateSystems = [];
 
-    public Entity CreateEntity()
+    public Entity CreateEntity() => CreateEntity(Guid.NewGuid());
+
+    public Entity CreateEntity(Guid id)
     {
-        var id = Guid.NewGuid();
-        _entityIds.Add(id);
+        if (!_entityIds.Add(id))
+            throw new ArgumentException($"Entity {id} already exists");
+
         return new Entity(id, this);
     }
 
