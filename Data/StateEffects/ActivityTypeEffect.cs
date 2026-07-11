@@ -22,6 +22,9 @@ public class ActivityTypeEffect(ActivityType type, ActivityPriority priority = A
     [JsonInclude]
     private double? DurationHours { get; set; } = durationHours;
 
+    [JsonInclude]
+    public IStateEffect[]? OnCompleteEffects { get; internal set; }
+
     public void Apply(Entity entity, params object[] info)
     {
         if (entity.TryGet<ActivityTypeComponent>(out var activityTypeComponent))
@@ -32,6 +35,8 @@ public class ActivityTypeEffect(ActivityType type, ActivityPriority priority = A
             {
                 activityTypeComponent!.End = SimWorld.Instance.DateTime.AddHours(DurationHours.Value);
             }
+
+            activityTypeComponent.OnCompleteEffects = OnCompleteEffects;
         }
     }
 }

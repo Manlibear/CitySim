@@ -7,7 +7,8 @@ public enum ActivityType
     Eat,
     Sleep,
     Liesure,
-    Social
+    Social,
+    Interview
 }
 
 public enum ActivityPriority

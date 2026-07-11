@@ -86,6 +86,7 @@ public partial class SimWorld : Node
         World.Register(new WalletSystem(World));
         World.Register(new SleepSystem(World));
         World.Register(new DelayedEffectSystem(World));
+        World.Register(new JobSystem(World));
         World.Initialize();
     }
 
@@ -133,7 +134,9 @@ public partial class SimWorld : Node
                 Pathfinding = pathfinding,
                 Wallet = WalletRegistry.Get(entity.Id),
                 MemoryComponent = entity.Get<MemoryComponent>(),
-                PreferenceComponent = entity.Get<PreferenceComponent>()
+                PreferenceComponent = entity.Get<PreferenceComponent>(),
+                SkillsComponent = entity.Get<SkillsComponent>(),
+                 CitizenComponent = entity.Get<CitizenComponent>()
             };
 
             if (entity.TryGet<JobComponent>(out var jobComponent))
@@ -222,6 +225,8 @@ public partial class SimWorld : Node
             entity.Attach(citizenData.ActivityType);
             entity.Attach(citizenData.MemoryComponent);
             entity.Attach(citizenData.PreferenceComponent);
+            entity.Attach(citizenData.SkillsComponent);
+            entity.Attach(citizenData.CitizenComponent);
             entity.Attach(new WorldPositionComponent { Position = citizenData.Position });
 
             if (citizenData.Job != null)

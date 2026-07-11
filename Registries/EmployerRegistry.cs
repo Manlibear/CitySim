@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using CitySim.Data;
+using CitySim.Helpers;
 
 namespace CitySim.Registries;
 
@@ -16,11 +17,11 @@ public static class EmployerRegistry
         employers.Add(name, []);
     }
 
-    public static void AddJob(string employer, string title, decimal wage, List<ScheduleEntry> schedule)
+    public static void AddJob(string employer, string title, decimal wage, List<ScheduleEntry> schedule, Dictionary<Skill, float> requiredSkills)
     {
         if (!employers.ContainsKey(employer)) throw new ArgumentException($"Unknown employer \"{employer}\"");
 
-        employers[employer].Add(title, new JobPosition(false, wage, schedule));
+        employers[employer].Add(title, new JobPosition() { Filled = false, RequiredSkills = requiredSkills, Schedule = schedule, Wage = wage });
     }
 
     public static void MarkJobFilled(string employer, string title, bool filled = true)
@@ -39,7 +40,33 @@ public static class EmployerRegistry
         return [.. employers[employer].Where(x => x.Key.StartsWith(title) && !x.Value.Filled).Select(x => x.Key)];
     }
 
-    public static (string Title, int Count, decimal Wage)[] GetVacancies(string employer)
+    public static (string Employer, string[] JobTitles)[] GetVacanciesOfType(string title)
+    {
+        // job titles are {title}_{LocationEntityID}, this prevents accidental hits
+        title += "_";
+        return [..employers.Select(x => (Employer: x.Key, Jobs: x.Value ))
+            .Where(x => x.Jobs.Any(j => j.Key.StartsWith(title) && !j.Value.Filled))
+            .Select(x => (x.Employer, JobTitles: (string[])[..x.Jobs.Select(y => y.Key)] ))];
+    }
+
+    public static (string Employer, Dictionary<string, JobPosition> Jobs)[] GetQualifiedVacancies(Dictionary<Skill, float> skills, float margin = 0)
+    {
+        return [.. employers
+            .Select(x => (Employer: x.Key, Jobs: x.Value
+                .Where(j => !j.Value.Filled && j.Value.RequiredSkills.SatisfiedBy(skills, margin))
+                .ToDictionary(j => j.Key, j => j.Value)))
+            .Where(x => x.Jobs.Count > 0)];
+    }
+
+    public static Dictionary<Skill, float> GetJobSkills(string employer, string job)
+    {
+        if (!employers.ContainsKey(employer)) throw new ArgumentException($"Unknown employer \"{employer}\"");
+        if (!employers[employer].ContainsKey(job)) throw new ArgumentException($"Unknown job \"{job}\" for employer \"{employer}\"");
+
+        return employers[employer][job].RequiredSkills;
+    }
+
+    public static (string Title, int Count, decimal Wage)[] GetVacanciesByEmployer(string employer)
     {
         if (!employers.ContainsKey(employer)) throw new ArgumentException($"Unknown employer \"{employer}\"");
 
@@ -65,9 +92,10 @@ public static class EmployerRegistry
     }
 }
 
-public record JobPosition(bool filled, decimal wage, List<ScheduleEntry> schedule)
+public record JobPosition
 {
-    public bool Filled { get; set; } = filled;
-    public decimal Wage { get; set; } = wage;
-    public List<ScheduleEntry> Schedule { get; set; } = schedule;
+    public required bool Filled { get; set; }
+    public required decimal Wage { get; set; }
+    public required List<ScheduleEntry> Schedule { get; set; }
+    public required Dictionary<Skill, float> RequiredSkills { get; set; }
 }

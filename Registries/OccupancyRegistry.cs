@@ -7,7 +7,7 @@ namespace CitySim.Registries;
 
 public static class OccupancyRegistry
 {
-    private static Dictionary<LocationKey, Guid?> _occupiedLocations;
+    private static Dictionary<LocationKey, Guid?> _occupiedLocations = null!;
 
     public static void Initialize() => _occupiedLocations = [];
 

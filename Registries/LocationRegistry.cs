@@ -23,6 +23,12 @@ public static class LocationRegistry
                 .Select(TryResolveOccupancy)
                 .FirstOrDefault(loc => loc != null);
         }
+        else if (name.StartsWith("@"))
+        {
+            // tag, but in a given map
+            var tag = name[1..];
+            return TryResolveOccupancy(_locations.FirstOrDefault(x => x.Key.MapID == map && x.Value.Tags.Contains(tag)).Value);
+        }
 
         return _locations.TryGetValue((name, map), out var found) ? TryResolveOccupancy(found) : null;
     }
@@ -31,6 +37,8 @@ public static class LocationRegistry
     // reserved queue tile baked into Position — null means "not available, try the next candidate".
     private static Location? TryResolveOccupancy(Location loc)
     {
+        if (loc == null) return null;
+
         if (loc.MaxQueuePositions == 1)
             return OccupancyRegistry.IsLocationReserved(loc.Name, loc.Map) ? null : loc;
 

@@ -33,3 +33,8 @@ public record ShopQueryMemory : IMemory
     public ItemType? ItemType { get; set; }
     public bool Available { get; set; }
 }
+
+public record ConfidenceMemory : IMemory
+{
+    public ActivityType Type { get; set; }
+}

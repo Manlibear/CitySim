@@ -7,7 +7,8 @@ namespace CitySim.Data;
 public enum Item
 {
     WhiteBread,
-    BagOfPeanuts
+    BagOfPeanuts,
+    ChocolateBar
 }
 
 public enum ItemType

@@ -78,6 +78,7 @@ public class HungerLoopTest(Node testScene) : TestClass(testScene)
 
         var shopInventory = new Inventory();
         shopInventory.Add(Item.BagOfPeanuts, 5, cost: 1.5m);
+        shopInventory.Add(Item.ChocolateBar, 5, cost: 2m);
         InventoryRegistry.Register(_shopId, shopInventory);
         WalletRegistry.Register(_shopId, new Wallet { Balance = 0 });
 
@@ -104,11 +105,13 @@ public class HungerLoopTest(Node testScene) : TestClass(testScene)
         InventoryRegistry.Register(_mark.Id);
 
         // Sam works the counter — not mechanically wired to the shop's stock (StaffingComponent
-        // doesn't exist yet), just here so the scene isn't a one-citizen town.
+        // doesn't exist yet) and doesn't actually get dispatched there via ScheduleSystem in
+        // this test (that needs a real PersonPresenter for MoveSpeed — separate test, later).
+        // Just here so the scene isn't a one-citizen town.
         var sam = _world.CreateEntity();
         sam.Attach(new NameComponent("Sam", "Retailer"));
         sam.Attach(new JobComponent { Employer = "Corner Shop", Title = "Cashier" });
-        _story.Add("Sam clocks in at the Corner Shop.");
+        _story.Add("Sam is already behind the counter at the Corner Shop.");
     }
 
     [Test]
@@ -172,7 +175,8 @@ public class HungerLoopTest(Node testScene) : TestClass(testScene)
             shop.Update(1.0);
             inventory.Update(1.0);
 
-            if (!boughtPeanuts && InventoryRegistry.TryGet(_mark.Id, out var markInventory) && markInventory!.GetAmount(Item.BagOfPeanuts) > 0)
+            if (!boughtPeanuts && InventoryRegistry.TryGet(_mark.Id, out var markInventory)
+                && markInventory!.GetAmount(Item.BagOfPeanuts) > 0 && WalletRegistry.Get(_mark.Id).Balance == 20m - 1.5m)
             {
                 boughtPeanuts = true;
                 _story.Add("Mark picks out a bag of peanuts and pays for it.");
@@ -187,17 +191,18 @@ public class HungerLoopTest(Node testScene) : TestClass(testScene)
                 satisfiedAgain = true;
                 _story.Add("Mark feels full and gets back to his day.");
             }
-
             SimWorld.Instance.DateTime = SimWorld.Instance.DateTime.AddMinutes(1);
 
             Thread.Sleep(2); // give the background pathfinding Task.Run a chance to complete
         }
 
+
+        GD.Print("-- HungerLoopTest --");
         foreach (var line in _story)
-            GD.Print(line);
+            GD.Print("- " + line);
 
         var finalSatiety = _mark.Get<NeedsComponent>().Satiety;
-        GD.Print($"Satiety: {initialSatiety:F3} -> {finalSatiety:F3}");
+        GD.Print($"= Satiety: {initialSatiety:F3} -> {finalSatiety:F3}");
 
         Assert.True(wasHungry, "Mark never crossed the hunger threshold.");
         Assert.True(headedToShop, "Mark never set off for the Corner Shop.");

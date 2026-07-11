@@ -69,7 +69,18 @@ public static class ItemRegistry
             SlotMax = 5,
             Tags = ["salty", "savoury", "nutty", "snack"],
             NeedsDelta = new() { Duration = SimWorld.Instance.SecondsFromMinutes(1), SatietyDelta = .2f },
-
+        },
+        [Item.ChocolateBar] = new()
+        {
+            Type = ItemType.Food,
+            Name = "Bar of Chocolate",
+            UnitSingular = "bar",
+            UnitPlural = "bars",
+            Description = "Creamy milk chocolate",
+            PartialUsage = false,
+            SlotMax = 5,
+            Tags = ["sweet", "chocolate", "treat", "snack"],
+            NeedsDelta = new() { Duration = SimWorld.Instance.SecondsFromMinutes(1), SatietyDelta = .2f },
         }
     };
 

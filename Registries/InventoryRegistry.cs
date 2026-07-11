@@ -6,7 +6,7 @@ namespace CitySim.Registries
 {
     public class InventoryRegistry
     {
-        private static Dictionary<Guid, Inventory> _inventories { get; set; }
+        private static Dictionary<Guid, Inventory> _inventories { get; set; } = null!;
 
         public static void Initialize() => _inventories = [];
 

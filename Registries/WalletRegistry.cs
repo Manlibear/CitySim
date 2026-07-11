@@ -6,7 +6,7 @@ namespace CitySim.Registries
 {
     public static class WalletRegistry
     {
-        private static Dictionary<Guid, Wallet> _wallets;
+        private static Dictionary<Guid, Wallet> _wallets = null!;
         public static void Initialize() => _wallets = [];
 
         public static void Register(Guid id) => _wallets[id] = new Wallet();

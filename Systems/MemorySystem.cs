@@ -49,6 +49,15 @@ public class MemorySystem(World world) : IUpdateSystem
                             Satisfaction = br.TotalScore
                         });
                         break;
+
+                    case JobInterviewFact jif:
+                        memoryComp.Memories.Add(new ConfidenceMemory()
+                        {
+                            // TODO: bullshit guess numbers
+                            Satisfaction = jif.Success ? 20 : -5,
+                            Type = ActivityType.Interview
+                        });
+                        break;
                 }
             }
         }

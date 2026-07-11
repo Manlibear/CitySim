@@ -18,7 +18,7 @@ public static class QueueRegistry
     // string[] Tags field, and record-generated equality compares arrays by reference, not
     // content, so a deserialized Location (fresh array instances) would never match a live one
     // as a dictionary key.
-    private static Dictionary<LocationKey, QueueEntry> _queues;
+    private static Dictionary<LocationKey, QueueEntry> _queues = null!;
 
     public static void Initialize(World world)
     {

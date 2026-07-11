@@ -27,12 +27,14 @@ public class CitizenSaveData
     public PathfindingComponent? Pathfinding { get; set; }
     public required Wallet Wallet { get; set; }
     public required MemoryComponent MemoryComponent { get; set; }
+    public required SkillsComponent SkillsComponent { get; set; }
+    public required CitizenComponent CitizenComponent { get; set; }
     public SleepComponent? SleepComponent { get; set; }
     public TiredComponent? TiredComponent { get; set; }
     public HungerComponent? HungerComponent { get; set; }
     public BrowseShopComponent? BrowseShopComponent { get; set; }
     public DelayedEffectComponent? DelayedEffectComponent { get; set; }
-    public required PreferenceComponent PreferenceComponent {get;set;}
+    public required PreferenceComponent PreferenceComponent { get; set; }
 }
 
 public class RegistrySaveData

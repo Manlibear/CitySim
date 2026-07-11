@@ -50,6 +50,8 @@ public class SaveGameTest(Node testScene) : TestClass(testScene)
                     Wallet = WalletRegistry.Get(entityId),
                     PreferenceComponent = new PreferenceComponent(),
                     MemoryComponent = new MemoryComponent(),
+                    SkillsComponent = new SkillsComponent().WithSkill(Skill.Charisma, 5).WithSkill(Skill.Dexterity, 2),
+                    CitizenComponent = new CitizenComponent(),
                     Schedule =
                     [
                         new ScheduleEntry
@@ -119,6 +121,12 @@ public class SaveGameTest(Node testScene) : TestClass(testScene)
     }
 
     [Test]
+    public void SkillsRoundTrip()
+    {
+        Assert.Equal(_originalCitizen.SkillsComponent.GetSkill(Skill.Charisma), _loadedCitizen.SkillsComponent.GetSkill(Skill.Charisma));
+    }
+
+    [Test]
     public void WalletRoundTrip()
     {
         Assert.Equal(_originalCitizen.Wallet.Balance, _loadedCitizen.Wallet.Balance);
@@ -185,6 +193,8 @@ public class SaveGameTest(Node testScene) : TestClass(testScene)
                 MemoryComponent = new MemoryComponent(),
                 PreferenceComponent = new PreferenceComponent(),
                 Wallet = WalletRegistry.Get(entityId),
+                CitizenComponent = new CitizenComponent(),
+                SkillsComponent = new SkillsComponent().WithSkill(Skill.Charisma, 5).WithSkill(Skill.Dexterity, 2),
                 Pathfinding = new PathfindingComponent
                 {
                     Destination = new WorldPosition("Overworld", new Vector2I(5, 5)),

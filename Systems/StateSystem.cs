@@ -30,6 +30,18 @@ public class StateSystem(World world) : IUpdateSystem
         {
             var activityComp = entity.Get<ActivityTypeComponent>();
 
+            if (activityComp.End <= SimWorld.Instance.DateTime)
+            {
+                activityComp.Type = ActivityType.Idle;
+                activityComp.Priority = ActivityPriority.Idle;
+
+                foreach(var effect in activityComp.OnCompleteEffects ?? [])
+                    effect.Apply(entity);
+
+                activityComp.End = null;
+                activityComp.OnCompleteEffects = null;
+            }
+
             if (_lastSeen.TryGetValue(entity.Id, out var previous))
             {
                 if (previous == activityComp.Type) continue;
@@ -38,12 +50,6 @@ public class StateSystem(World world) : IUpdateSystem
             }
 
             _lastSeen[entity.Id] = activityComp.Type;
-
-            if (activityComp.End <= SimWorld.Instance.DateTime)
-            {
-                activityComp.Type = ActivityType.Idle;
-                activityComp.Priority = ActivityPriority.Idle;
-            }
         }
     }
 }

@@ -45,13 +45,13 @@ public class ConsumptionSystem(World world) : IUpdateSystem
                         {
                             Destination = diningLocation.Position,
                             OnArriveEffects = [
-                                new ActivityTypeEffect(ActivityType.Eat),
+                                new ActivityTypeEffect(ActivityType.Eat, durationHours: 5){
+                                     OnCompleteEffects = [
+                                         new ActivityTypeEffect(ActivityType.Idle)
+                                     ]
+                                },
                                 new NeedsSatisfierEffect(){ NeedsDelta = chosenItem.Definition.NeedsDelta },
                                 new InventoryEffect(chosenItem.Item, -consumedAmount),
-                                AttachComponentEffect.Create(new DelayedEffectComponent(){
-                                     Effects = [new ActivityTypeEffect(ActivityType.Idle)],
-                                     Delay = chosenItem.Definition.NeedsDelta!.Duration,
-                                })
                              ]
                         });
                     }

@@ -14,4 +14,5 @@ public static class Globals
     public const float MinEnergyNeed = 0.3f;
     public const float NeedScheduleCooldownHours = 1f;
     public const float MemoryLifespanPerUnit = 2000f; // +-5 satisfaction memory takes around a week to decay
+    public const float CommuterDistancePenaltyPerUnit = 4f;
 }
