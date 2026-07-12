@@ -27,7 +27,7 @@ public class WalletSystem(World world) : IUpdateSystem
                     if (SimWorld.Instance.DateTime.Day == credit.DayOfMonth &&
                     (credit.LastTransactionDate == null || credit.LastTransactionDate.Value.Month != SimWorld.Instance.DateTime.Month))
                     {
-                        wallet.Balance += credit.Amount;
+                        wallet.Credit(credit.Amount);
                         credit.LastTransactionDate = SimWorld.Instance.DateTime;
                     }
                 }
@@ -37,8 +37,10 @@ public class WalletSystem(World world) : IUpdateSystem
                     if (SimWorld.Instance.DateTime.Day == debit.DayOfMonth &&
                     (debit.LastTransactionDate == null || debit.LastTransactionDate.Value.Month != SimWorld.Instance.DateTime.Month))
                     {
-                        wallet.Balance -= debit.Amount;
-                        debit.LastTransactionDate = SimWorld.Instance.DateTime;
+                        if (wallet.Debit(debit.Amount))
+                        {
+                            debit.LastTransactionDate = SimWorld.Instance.DateTime;
+                        }
                     }
                 }
             }

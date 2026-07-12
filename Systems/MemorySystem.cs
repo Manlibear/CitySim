@@ -58,6 +58,18 @@ public class MemorySystem(World world) : IUpdateSystem
                             Type = ActivityType.Interview
                         });
                         break;
+
+                    case MortgagePaidOffFact mpof:
+                        memoryComp.Memories.Add(new FinancialMemory(){
+                             Satisfaction = 40
+                        });
+                        break;
+
+                    case MissedPaymentFact mpf:
+                        memoryComp.Memories.Add(new FinancialMemory(){
+                             Satisfaction = -((float)mpf.Amount * .1f)
+                        });
+                    break;
                 }
             }
         }

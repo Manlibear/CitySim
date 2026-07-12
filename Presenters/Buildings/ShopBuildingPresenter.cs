@@ -24,11 +24,6 @@ public partial class ShopBuildingPresenter : BuildingPresenter
 
         EmployerRegistry.AddEmployer(Name);
 
-        foreach (var location in _interior.FindChildren("ShopLocation*", recursive: true).Cast<ShopLocationPresenter>())
-        {
-            location.EntityID = Entity.Id;
-        }
-
         var managerVisitorLocation = _interior.FindChild("ManagerVisitorLocation", recursive: true)  ?? throw new KeyNotFoundException($"Cant find ManagerVisitorLocation for {Name}");
         var managerWorkLocation = _interior.FindChild("ManagerLocation", recursive: true) as LocationPresenter ?? throw new KeyNotFoundException($"Cant find ManagerLocation for {Name}");
 

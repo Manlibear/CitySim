@@ -4,6 +4,7 @@ using CitySim.Components;
 using CitySim.Data;
 using CitySim.Data.StateEffects;
 using CitySim.ECS;
+using CitySim.Presenters;
 using CitySim.Registries;
 using CitySim.Scripts;
 
@@ -61,13 +62,22 @@ public class ConsumptionSystem(World world) : IUpdateSystem
                     var shopLocation = LocationRegistry.Resolve("#" + hungerComp.Tag + memoryComp.GetAvoidStringByNegativeShopQuery(ItemType.Food, hungerComp.Tag), worldPos);
                     if (shopLocation != null)
                     {
+                        var shopLocationPresenter = world.FindEntityByID(shopLocation.EntityID)!.Value.Get<GodotNodeComponent>().Node as ShopLocationPresenter;
+                        var cashierLocation = LocationRegistry.Get(shopLocationPresenter!.CashierLocation!.Name, shopLocation.Map, allowOccupied: true);
+
+                        // Don't bother sending them across town if nobody's at the counter.
+                        if (cashierLocation == null || !OccupancyRegistry.IsLocationReserved(cashierLocation.Name, cashierLocation.Map))
+                            continue;
+
                         entity.Attach(new PathfindingComponent()
                         {
                             Destination = shopLocation.Position,
                             OnArriveEffects = [
                                   AttachComponentEffect.Create(new BrowseShopComponent(){
-                                       ItemType = ItemType.Food,
-                                       Tag = hungerComp.Tag
+                                      CashierLocation = cashierLocation,
+                                      ShopLocation = shopLocation,
+                                      ItemType = ItemType.Food,
+                                      Tag = hungerComp.Tag
                                   })
                               ]
                         });

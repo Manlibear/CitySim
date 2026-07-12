@@ -52,7 +52,7 @@ public partial class BuildingPresenter : PresenterNode
             {
                 if (node is not PresenterNode presenter) continue;
                 var entity = World.CreateEntity();
-                presenter.AssignEntity(entity);
+                presenter.AssignParentEntity(entity);
                 presenter.PreBootstrap();
             }
         }

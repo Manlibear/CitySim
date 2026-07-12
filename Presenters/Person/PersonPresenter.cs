@@ -42,7 +42,7 @@ public partial class PersonPresenter : PresenterNode
 
         if (!string.IsNullOrEmpty(HomeMap))
         {
-            Entity.Attach(new HomeComponent(HomeMap));
+            Entity.Attach(new HomeComponent(HomeMap) { Cost = new ScheduledTransaction() { Amount = 500, DayOfMonth = 2 } });
         }
 
         Entity.Attach(new ScheduleComponent());

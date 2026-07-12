@@ -96,7 +96,7 @@ public class JobLoopTest(Node testScene) : TestClass(testScene)
         _jamie.Attach(new NameComponent("Jamie", "Testerson"));
         _jamie.Attach(new WorldPositionComponent { Position = new WorldPosition(MapRegistry.OverworldId, HomeTile) });
         _jamie.Attach(new CitizenComponent());
-        _jamie.Attach(new HomeComponent("Home"));
+        _jamie.Attach(new HomeComponent("Home"){ Cost = new(){ Amount = 500, DayOfMonth = 2}});
         _jamie.Attach(new ActivityTypeComponent { Type = ActivityType.Idle });
         _jamie.Attach(new NeedsComponent { Satiety = 1f, Energy = 1f, Social = 1f });
         _jamie.Attach(new FactComponent());

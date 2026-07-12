@@ -20,6 +20,7 @@ public record Location
     public required string Name { get; set; }
     public required string Map { get; set; }
     public required Guid EntityID { get; set; }
+    public Guid? ParentEntityID { get; set; }
     public required WorldPosition Position { get; set; }
     public required string[] Tags { get; set; }
     public required LocationType Type { get; set; }

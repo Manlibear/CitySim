@@ -38,7 +38,7 @@ public class PathfindingSystem(World world) : IUpdateSystem
                     }
                     else if (pf.PendingTask.IsCompleted)
                     {
-
+                        entity.ReleaseOccupancy();
                         pf.Path = pf.PendingTask!.Result;
                         pf.PendingTask = null;
                         pf.Status = PathfindingStatus.Moving;

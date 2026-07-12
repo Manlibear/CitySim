@@ -22,6 +22,7 @@ public partial class SimWorld : Node
     [Export] public float TimeSpeed { get; set; } = 1f;
     [Export] public float TimeMultiplier { get; set; } = 60;
     public DateTime DateTime { get; set; } = new DateTime(2000, 01, 01, 9, 0, 0);
+    public decimal InterestRate { get; internal set; } = 3.75m;
     public World World { get; } = new();
 
     public override void _Ready()
@@ -136,7 +137,7 @@ public partial class SimWorld : Node
                 MemoryComponent = entity.Get<MemoryComponent>(),
                 PreferenceComponent = entity.Get<PreferenceComponent>(),
                 SkillsComponent = entity.Get<SkillsComponent>(),
-                 CitizenComponent = entity.Get<CitizenComponent>()
+                CitizenComponent = entity.Get<CitizenComponent>()
             };
 
             if (entity.TryGet<JobComponent>(out var jobComponent))

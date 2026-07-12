@@ -1,4 +1,5 @@
 using System;
+using CitySim.Components;
 using CitySim.Data;
 using CitySim.Registries;
 using Godot;
@@ -11,6 +12,7 @@ public partial class LocationPresenter : PresenterNode
     [Export] public LocationType Type { get; set; }
     [Export] public FacingDirection FacingDirection { get; set; }
     public Guid EntityID => Entity.Id;
+    public Guid? ParentEntityID => ParentEntity?.Id ?? null;
 
     public override void PreBootstrap() { }
     public override void Bootstrap()
@@ -30,7 +32,10 @@ public partial class LocationPresenter : PresenterNode
             Tags = Tags,
             Type = Type,
             EntityID = EntityID,
+            ParentEntityID = ParentEntityID,
             FacingDirection = FacingDirection
         });
+
+        Entity.Attach(new GodotNodeComponent() { Node = this });
     }
 }

@@ -38,3 +38,5 @@ public record ConfidenceMemory : IMemory
 {
     public ActivityType Type { get; set; }
 }
+
+public record FinancialMemory : IMemory { }

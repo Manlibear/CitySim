@@ -10,6 +10,7 @@ using CitySim.Registries;
 using CitySim.Scripts;
 using CitySim.Systems;
 using Xunit;
+using CitySim.Presenters;
 
 namespace CitySim.Tests;
 
@@ -54,16 +55,43 @@ public class HungerLoopTest(Node testScene) : TestClass(testScene)
         ]);
 
         _shopId = Guid.NewGuid();
+
+        var shopLocation =  new ShopLocationPresenter { Name = "Corner Shop" };
+        var cashierLocation = new LocationPresenter { Name = "Corner Shop - Cashier" };
+        shopLocation.CashierLocation = cashierLocation;
+
+        var cashierLocationEntity = _world.CreateEntity();
+        cashierLocation.AssignEntity(cashierLocationEntity);
+        cashierLocationEntity.Attach(new GodotNodeComponent(){ Node = cashierLocation});
+
+        var shopLocationEntity = _world.CreateEntity();
+        shopLocation.AssignEntity(shopLocationEntity);
+        shopLocationEntity.Attach(new GodotNodeComponent(){ Node = shopLocation});
+
+        LocationRegistry.Register(new Location
+        {
+            Name = "Corner Shop - Cashier",
+            Map = MapId,
+            EntityID = cashierLocationEntity.Id,
+            Position = new WorldPosition(MapId, ShopTile + Vector2I.One),
+            Type = LocationType.Generic,
+            Tags = ["work"],
+            FacingDirection = FacingDirection.South,
+            ParentEntityID  = _shopId
+        });
+
         LocationRegistry.Register(new Location
         {
             Name = "Corner Shop",
             Map = MapId,
-            EntityID = _shopId,
+            EntityID = shopLocationEntity.Id,
             Position = new WorldPosition(MapId, ShopTile),
             Tags = ["snack"],
             Type = LocationType.Shop,
             FacingDirection = FacingDirection.South,
+            ParentEntityID  = _shopId
         });
+
 
         LocationRegistry.Register(new Location
         {
@@ -90,7 +118,7 @@ public class HungerLoopTest(Node testScene) : TestClass(testScene)
         _mark.Attach(new NeedsComponent { Satiety = 0.3f, Energy = 1f, Social = 1f });
         _mark.Attach(new ActivityTypeComponent { Type = ActivityType.Idle });
         _mark.Attach(new ScheduleComponent());
-        _mark.Attach(new HomeComponent(MapId));
+        _mark.Attach(new HomeComponent(MapId) { Cost = new() { Amount = 500, DayOfMonth = 2 } });
         _mark.Attach(new FactComponent());
         _mark.Attach(new MemoryComponent());
         _mark.Attach(new PreferenceComponent
@@ -111,7 +139,11 @@ public class HungerLoopTest(Node testScene) : TestClass(testScene)
         var sam = _world.CreateEntity();
         sam.Attach(new NameComponent("Sam", "Retailer"));
         sam.Attach(new JobComponent { Employer = "Corner Shop", Title = "Cashier" });
+        OccupancyRegistry.ReserveLocation("Corner Shop - Cashier", MapId, sam.Id);
+
         _story.Add("Sam is already behind the counter at the Corner Shop.");
+
+
     }
 
     [Test]

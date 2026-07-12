@@ -17,6 +17,7 @@ namespace CitySim.Systems
             {
                 var request = _world.Get<ItemTransferRequestComponent>(entity);
                 bool shouldTransfer = true;
+                bool canPay = true;
 
                 InventoryRegistry.TryGet(request.SourceEntityID, out var sourceInventory);
                 InventoryRegistry.TryGet(entity.Id, out var destInventory);
@@ -33,10 +34,10 @@ namespace CitySim.Systems
                     WalletRegistry.TryGet(entity.Id, out var buyerWallet);
                     WalletRegistry.TryGet(request.SourceEntityID, out var sellerWallet);
 
-                    if (buyerWallet != null && sellerWallet != null && buyerWallet!.Balance >= request.Cost.Value)
+                    if (buyerWallet != null && sellerWallet != null)
                     {
-                        buyerWallet.Balance -= request.Cost.Value;
-                        sellerWallet.Balance += request.Cost.Value;
+                        if (buyerWallet.Debit(request.Cost.Value)) sellerWallet.Credit(request.Cost.Value);
+                        else canPay = false;
                     }
                     else
                     {
@@ -44,20 +45,25 @@ namespace CitySim.Systems
                     }
                 }
 
-                if (shouldTransfer)
+                if (shouldTransfer && canPay)
                 {
                     sourceInventory!.Remove(request.Item, request.Amount);
                     destInventory!.Add(request.Item, request.Amount);
                 }
 
-                // TODO: Explore this more, since the reason for failure should impact the memory generated
-                // entity.Get<FactComponent>().Facts.Enqueue(new ItemTransferResultFact()
-                // {
-                //     Succeeded = shouldTransfer,
-                //     Item = request.Item,
-                //     EntityID = request.SourceEntityID
-                // });
-
+                if (!canPay)
+                {
+                    entity.Get<FactComponent>().Add(new MissedPaymentFact(request.Cost!.Value));
+                }
+                else if (!shouldTransfer)
+                {
+                    entity.Get<FactComponent>().Facts.Enqueue(new ItemTransferResultFact()
+                    {
+                        Succeeded = shouldTransfer,
+                        Item = request.Item,
+                        EntityID = request.SourceEntityID
+                    });
+                }
 
                 _world.Detach<ItemTransferRequestComponent>(entity);
                 #endregion

@@ -67,7 +67,7 @@ Milestone 2 closed out — see ✅ Complete.
 **Jobs**
 - Buildings have a `StaffingComponent` — job slots, hiring/firing logic
 - Once staffing exists: shops should require a present/on-shift worker to be browsable/buyable, not just have stock in `InventoryRegistry` — pair a shop `Location` with its `WorkLocation`. `HungerLoopTest`'s "Sam" citizen is flavor-only today (no real schedule dispatch) specifically pending this — revisit that test once `ScheduleSystem`-driven work dispatch is exercised there too
-- Firing / quitting — currently `EmployerRegistry.MarkJobFilled` only ever gets set `true`; nothing ever frees a slot back up
+- Firing — currently `EmployerRegistry.MarkJobFilled` only ever gets set `true`; nothing ever frees a slot back up. Evaluate on shift-end `OnComplete` effect using `SkillsComponent` + mood (reuse the scoring `MemorySystem.ComputeMoodFromItem` already does for shop memories) — doable now, no new subsystem needed. Quitting moved to Milestone 4 (see Relationships) — needs manager sentiment + financial trend data that don't exist yet
 - Pull the Manager-role setup out of `ShopBuildingPresenter` into a shared `WorkBuildingPresenter` base (see ✅ Complete — hiring loop) once a second building type needs it
 
 **Shops & Commerce**
@@ -107,6 +107,7 @@ Milestone 2 closed out — see ✅ Complete.
 - Citizens who interact frequently build `RelationshipComponent` links
 - Friends visit each other's homes, sit together at restaurants
 - Relationships decay without contact
+- Quitting — broader than firing's shift-end skill/mood check (Milestone 3); needs a citizen's financial trend (wallet trajectory, not just balance), manager sentiment (requires a manager-as-entity relationship link), and longer-term goals/aspirations to weigh against staying. Waits on `RelationshipComponent`/manager links above plus `MoodComponent` (this milestone) existing first
 
 **Reputation & Businesses**
 - Businesses accumulate a reputation score based on customer satisfaction

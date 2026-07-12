@@ -11,7 +11,7 @@ public static class LocationRegistry
     static readonly Dictionary<(string Name, string MapID), Location> _locations = [];
     static readonly Dictionary<(string GroupName, string MapID), List<Location>> _groups = [];
 
-    public static Location? Get(string name, string map)
+    public static Location? Get(string name, string map, bool allowOccupied = false)
     {
         if (name.EndsWith("*"))
         {
@@ -20,24 +20,27 @@ public static class LocationRegistry
             if (!foundGroup.Any()) return null;
 
             return foundGroup.First().Value
-                .Select(TryResolveOccupancy)
+                .Select(loc => TryResolveOccupancy(loc, allowOccupied))
                 .FirstOrDefault(loc => loc != null);
         }
         else if (name.StartsWith("@"))
         {
             // tag, but in a given map
             var tag = name[1..];
-            return TryResolveOccupancy(_locations.FirstOrDefault(x => x.Key.MapID == map && x.Value.Tags.Contains(tag)).Value);
+            return TryResolveOccupancy(_locations.FirstOrDefault(x => x.Key.MapID == map && x.Value.Tags.Contains(tag)).Value, allowOccupied);
         }
 
-        return _locations.TryGetValue((name, map), out var found) ? TryResolveOccupancy(found) : null;
+        return _locations.TryGetValue((name, map), out var found) ? TryResolveOccupancy(found, allowOccupied) : null;
     }
 
     // Single-slot locations are free/reserved wholesale; queueable ones hand back a copy with a
     // reserved queue tile baked into Position — null means "not available, try the next candidate".
-    private static Location? TryResolveOccupancy(Location loc)
+    // allowOccupied skips that filtering entirely, for callers that want the raw registered
+    // location regardless of occupancy (e.g. checking whether it IS occupied).
+    private static Location? TryResolveOccupancy(Location loc, bool allowOccupied = false)
     {
         if (loc == null) return null;
+        if (allowOccupied) return loc;
 
         if (loc.MaxQueuePositions == 1)
             return OccupancyRegistry.IsLocationReserved(loc.Name, loc.Map) ? null : loc;
@@ -80,14 +83,14 @@ public static class LocationRegistry
     public static Location? NearestOfType(LocationType locationType, WorldPosition position, Guid[] avoids)
     {
         return _locations.Where(x => x.Value.Position.MapID == position.MapID && x.Value.Type == locationType)
-                         .Where(x => !avoids.Contains(x.Value.EntityID))
+                         .Where(x => !avoids.Contains(x.Value.EntityID) && (x.Value.ParentEntityID == null || !avoids.Contains(x.Value.ParentEntityID.Value)))
                          .OrderBy(x => x.Value.Position.Tile.ManhattanDistanceFrom(position.Tile)).FirstOrDefault().Value;
     }
 
     public static Location? NearestWithTag(string tag, WorldPosition position, Guid[] avoids)
     {
         return _locations.Where(x => x.Value.Position.MapID == position.MapID && (x.Value.Tags?.Contains(tag) ?? false))
-                         .Where(x => !avoids.Contains(x.Value.EntityID))
+                         .Where(x => !avoids.Contains(x.Value.EntityID) && (x.Value.ParentEntityID == null || !avoids.Contains(x.Value.ParentEntityID.Value)))
                          .OrderBy(x => x.Value.Position.Tile.ManhattanDistanceFrom(position.Tile)).FirstOrDefault().Value;
     }
 
