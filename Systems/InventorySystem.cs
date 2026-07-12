@@ -28,7 +28,6 @@ namespace CitySim.Systems
                     shouldTransfer = false;
                 }
 
-
                 if (shouldTransfer && request.Cost != null)
                 {
                     WalletRegistry.TryGet(entity.Id, out var buyerWallet);

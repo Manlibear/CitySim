@@ -14,10 +14,6 @@ public static class QueueRegistry
 {
     private static World? _world;
 
-    // Keyed on LocationKey (Name, Map) rather than the whole Location — Location carries a
-    // string[] Tags field, and record-generated equality compares arrays by reference, not
-    // content, so a deserialized Location (fresh array instances) would never match a live one
-    // as a dictionary key.
     private static Dictionary<LocationKey, QueueEntry> _queues = null!;
 
     public static void Initialize(World world)
