@@ -35,8 +35,15 @@ public class JobSystem(World world) : IUpdateSystem
                 var bestScore = decimal.MinValue;
                 (string Employer, string Job) preference = ("", "");
 
+                //TODO: this will currently expire, do we want people to re-apply for old jobs?
+                // or do we say yes, and then have a list of previous employees kept by the employer
+                // and increase the chance for interview failure?
+                var negativePreviousEmployers = entity.Get<MemoryComponent>().Memories.Where(x => x is JobMemory jm && jm.Satisfaction < 0).Select(x => (x as JobMemory)!.Employer);
+
                 foreach (var (Employer, Jobs) in employersWithJobs)
                 {
+                    if(negativePreviousEmployers.Contains(Employer)) continue;
+
                     var jobLocation = LocationRegistry.Get(Employer, MapRegistry.OverworldId) ?? throw new ArgumentException($"Unable to find employer Location '{Employer}'");
 
                     foreach (var job in Jobs)
@@ -87,7 +94,7 @@ public class JobSystem(World world) : IUpdateSystem
                 location = LocationRegistry.Get("ManagerVisitor", jobApplicantComp.Employer) ?? throw new ArgumentException($"Unable to find ManagerVisitor location for '{jobApplicantComp.Employer}'");
             }
 
-            if(location == null) throw new ArgumentException($"Unable to find interview location for {jobApplicantComp.Employer} {jobApplicantComp.Job}");
+            if (location == null) throw new ArgumentException($"Unable to find interview location for {jobApplicantComp.Employer} {jobApplicantComp.Job}");
 
             entity.Attach(new PathfindingComponent()
             {
@@ -142,6 +149,18 @@ public class JobSystem(World world) : IUpdateSystem
 
             entity.Detach<JobApplicationResultComponent>();
             entity.Get<FactComponent>().Add(new JobInterviewFact() { Success = success });
+        }
+
+        foreach (var entity in world.Entities.With<JobComponent>().ToList())
+        {
+            var jobComp = entity.Get<JobComponent>();
+
+            if (jobComp.Performance < Globals.MinJobPerformance)
+            {
+                EmployerRegistry.MarkJobFilled(jobComp.Employer, jobComp.Title, filled: false);
+                entity.Get<FactComponent>().Add(new FiredFromJobFact(){ Employer = jobComp.Employer });
+                entity.Detach<JobComponent>();
+            }
         }
 
 

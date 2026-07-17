@@ -1,6 +1,9 @@
+using System.Collections.Generic;
 using System.Linq;
 using CitySim.Components;
+using CitySim.Data;
 using CitySim.Data.Facts;
+using CitySim.Data.StateEffects;
 using CitySim.ECS;
 using CitySim.Registries;
 
@@ -8,14 +11,12 @@ namespace CitySim.Systems
 {
     public class InventorySystem(World world) : IUpdateSystem
     {
-        private readonly World _world = world;
-
         public void Update(double delta)
         {
             #region ItemTransferRequest
-            foreach (var entity in _world.Entities.With<ItemTransferRequestComponent>().ToList())
+            foreach (var entity in world.Entities.With<ItemTransferRequestComponent>().ToList())
             {
-                var request = _world.Get<ItemTransferRequestComponent>(entity);
+                var request = world.Get<ItemTransferRequestComponent>(entity);
                 bool shouldTransfer = true;
                 bool canPay = true;
 
@@ -64,9 +65,84 @@ namespace CitySim.Systems
                     });
                 }
 
-                _world.Detach<ItemTransferRequestComponent>(entity);
-                #endregion
+                foreach (var effect in request.OnCompleteEffects ?? [])
+                    effect.Apply(entity);
+
+                world.Detach<ItemTransferRequestComponent>(entity);
             }
+            #endregion
+
+            #region InventoryRefillComponent
+            foreach (var entity in world.Entities.With<InventoryRefillComponent>().Without<PathfindingComponent>().Without<ShopForComponent>())
+            {
+                if (!InventoryRegistry.TryGet(entity.Id, out var inventory)) continue;
+
+                var inventoryRefill = entity.Get<InventoryRefillComponent>();
+
+                if (inventoryRefill.Status == InventoryRefillStatus.Pending)
+                {
+                    foreach (var slot in inventory!.GetSlots())
+                    {
+                        if (slot.DesiredAmount.HasValue && slot.Amount < slot.DesiredAmount.Value)
+                        {
+                            if (entity.Has<CitizenComponent>())
+                            {
+                                var itemDef = ItemRegistry.Get(slot.Item);
+                                if (itemDef.BoughtFrom == null) continue; // needed item cannot be bought, skip
+
+                                if (!inventoryRefill.NeededItems.ContainsKey(itemDef.BoughtFrom.Value))
+                                    inventoryRefill.NeededItems.Add(itemDef.BoughtFrom.Value, []);
+
+                                inventoryRefill.NeededItems[itemDef.BoughtFrom.Value].Add((slot.Item, float.Ceiling(slot.DesiredAmount.Value - slot.Amount)));
+                            }
+                            else if (entity.Has<BuildingComponent>())
+                            {
+                                // buildings wanting items are getting new stock delivered
+                                inventoryRefill.NeededItems[LocationType.Generic].Add((slot.Item, float.Ceiling(slot.DesiredAmount.Value - slot.Amount)));
+                            }
+                        }
+                    }
+                }
+                else if (inventoryRefill.Status == InventoryRefillStatus.InProgress)
+                {
+                    if (entity.Has<CitizenComponent>())
+                    {
+                        if (!inventoryRefill.NeededItems.Any())
+                        {
+                            entity.Detach<InventoryRefillComponent>();
+                            continue;
+                        }
+
+                        var worldPos = entity.Get<WorldPositionComponent>().Position;
+                        if (worldPos.MapID != MapRegistry.OverworldId)
+                        {
+                            // instead, get the overworld door of this location
+                            worldPos = LocationRegistry.Get(worldPos.MapID, MapRegistry.OverworldId)!.Position;
+                        }
+
+                        // TODO: Need to factor in avoids
+                        var nextShop = LocationRegistry.GetNearestOfLocations([.. inventoryRefill.NeededItems.Keys], worldPos);
+                        entity.Attach(new PathfindingComponent()
+                        {
+                            Destination = nextShop.Position,
+                            OnArriveEffects = [
+                                AttachComponentEffect.Create(new ShopForComponent(){
+                                 NeededItems = inventoryRefill.NeededItems[nextShop.Type],
+                                 ShopLocation = nextShop
+                            })
+                            ]
+                        });
+                        inventoryRefill.NeededItems.Remove(nextShop.Type);
+                    }
+                    else
+                    {
+                        // TODO: Handle buildings refilling their stock, need to implement postage/deliveries first
+                    }
+                }
+
+
+            }
+            #endregion
 
         }
     }

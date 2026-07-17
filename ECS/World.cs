@@ -4,8 +4,9 @@ using System.Linq;
 
 namespace CitySim.ECS;
 
-public sealed class World
+public sealed class World(int seed)
 {
+    public int Seed { get; set; } = seed;
     private readonly HashSet<Guid> _entityIds = [];
     private readonly Dictionary<Type, Dictionary<Guid, IComponent>> _components = [];
     private readonly List<IUpdateSystem> _updateSystems = [];

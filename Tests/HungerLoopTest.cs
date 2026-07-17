@@ -33,7 +33,7 @@ public class HungerLoopTest(Node testScene) : TestClass(testScene)
     [Setup]
     public void Setup()
     {
-        _world = new World();
+        _world = new World(42);
 
         SimWorld.Instance = new SimWorld
         {
@@ -56,19 +56,19 @@ public class HungerLoopTest(Node testScene) : TestClass(testScene)
 
         _shopId = Guid.NewGuid();
 
-        var shopLocation =  new ShopLocationPresenter { Name = "Corner Shop" };
+        var shopLocation = new ShopLocationPresenter { Name = "Corner Shop" };
         var cashierLocation = new LocationPresenter { Name = "Corner Shop - Cashier" };
         shopLocation.CashierLocation = cashierLocation;
 
         var cashierLocationEntity = _world.CreateEntity();
         cashierLocation.AssignEntity(cashierLocationEntity);
-        cashierLocationEntity.Attach(new GodotNodeComponent(){ Node = cashierLocation});
+        cashierLocationEntity.Attach(new GodotNodeComponent() { Node = cashierLocation });
 
         var shopLocationEntity = _world.CreateEntity();
         shopLocation.AssignEntity(shopLocationEntity);
-        shopLocationEntity.Attach(new GodotNodeComponent(){ Node = shopLocation});
+        shopLocationEntity.Attach(new GodotNodeComponent() { Node = shopLocation });
 
-        LocationRegistry.Register(new Location
+        var cashierLoc = new Location
         {
             Name = "Corner Shop - Cashier",
             Map = MapId,
@@ -77,8 +77,9 @@ public class HungerLoopTest(Node testScene) : TestClass(testScene)
             Type = LocationType.Generic,
             Tags = ["work"],
             FacingDirection = FacingDirection.South,
-            ParentEntityID  = _shopId
-        });
+            ParentEntityID = _shopId
+        };
+        LocationRegistry.Register(cashierLoc);
 
         LocationRegistry.Register(new Location
         {
@@ -89,7 +90,8 @@ public class HungerLoopTest(Node testScene) : TestClass(testScene)
             Tags = ["snack"],
             Type = LocationType.Shop,
             FacingDirection = FacingDirection.South,
-            ParentEntityID  = _shopId
+            ParentEntityID = _shopId,
+            PairedLocation = cashierLoc
         });
 
 

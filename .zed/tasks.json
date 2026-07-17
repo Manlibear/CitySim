@@ -8,4 +8,9 @@
     "label": "Run Tests (headless)",
     "command": "dotnet build && $ZED_WORKTREE_ROOT/Tests/run_tests.sh",
   },
+  {
+    "label": "List TODOs",
+    "command": "rg -s -p -r ' $1' \"^[\\t\\s]*//\\s*TODO[:\\s]*(.*\\$)\"",
+    "save": "all"
+  }
 ]

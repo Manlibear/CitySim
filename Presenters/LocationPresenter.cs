@@ -13,6 +13,7 @@ public partial class LocationPresenter : PresenterNode
     [Export] public FacingDirection FacingDirection { get; set; }
     public Guid EntityID => Entity.Id;
     public Guid? ParentEntityID => ParentEntity?.Id ?? null;
+    public Location Location { get; set; } = null!;
 
     public override void PreBootstrap() { }
     public override void Bootstrap()
@@ -24,7 +25,7 @@ public partial class LocationPresenter : PresenterNode
         if (FindChild("Area2D").FindChild("CollisionShape2D") is not CollisionShape2D locationTile)
             throw new ArgumentException("32x32 CollisionShape2D required");
 
-        LocationRegistry.Register(new Location()
+        Location = new Location()
         {
             Position = new WorldPosition(mapID, (Vector2I)(GetOwner<Node2D>().ToLocal(locationTile.GlobalPosition) / Globals.TileSize)),
             Name = Name,
@@ -34,8 +35,10 @@ public partial class LocationPresenter : PresenterNode
             EntityID = EntityID,
             ParentEntityID = ParentEntityID,
             FacingDirection = FacingDirection
-        });
+        };
+        LocationRegistry.Register(Location);
 
         Entity.Attach(new GodotNodeComponent() { Node = this });
     }
+    public override void PostBootstrap() { }
 }

@@ -9,9 +9,11 @@ public class MemoryComponent : IComponent
 {
     public List<IMemory> Memories { get; set; } = [];
 
-    public ShopQueryMemory[] GetNegativeShopQueryMemories(ItemType itemType, string tag)
+    public IShopMemory[] GetNegativeShopQueryMemories(ItemType itemType, string tag)
     {
-        return [.. Memories.Where(x => x.Satisfaction < 0 && x is ShopQueryMemory sq && sq.Tag == tag && sq.ItemType == itemType).Select(x => (ShopQueryMemory)x)];
+        return [.. Memories.Where(x => x.Satisfaction < 0 && (x is ShopQueryMemory sq && sq.Tag == tag && sq.ItemType == itemType) ||
+                                                             (x is ItemCostMemory icm && x.Satisfaction < -5)
+        ).Select(x => (IShopMemory)x)];
     }
 
     public string GetAvoidStringByNegativeShopQuery(ItemType itemType, string tag)

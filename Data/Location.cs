@@ -28,6 +28,7 @@ public record Location
     public int MaxQueuePositions { get; set; } = 1;
     public FacingDirection? QueueDirection { get; set; }
     public int? QueuePosition { get; set; }
+    public Location? PairedLocation { get; set; }
 }
 
 public record LocationKey(string Name, string Map)

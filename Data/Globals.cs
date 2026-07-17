@@ -15,4 +15,13 @@ public static class Globals
     public const float NeedScheduleCooldownHours = 1f;
     public const float MemoryLifespanPerUnit = 2000f; // +-5 satisfaction memory takes around a week to decay
     public const float CommuterDistancePenaltyPerUnit = 4f;
+
+    public const float MinJobPerformance = -20f;
+    public const decimal ComfortableBalance = 1000m;
+
+    public const int InteractionTileRange = 3;
+    public const float SocialScoreSensitivity = 50f;
+
+    // this will be effectively doubled as both social components in the pair will fire
+    public const float SocialRelationshipPerSecond = .5f;
 }

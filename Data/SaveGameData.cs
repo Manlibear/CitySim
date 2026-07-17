@@ -29,6 +29,7 @@ public class CitizenSaveData
     public required MemoryComponent MemoryComponent { get; set; }
     public required SkillsComponent SkillsComponent { get; set; }
     public required CitizenComponent CitizenComponent { get; set; }
+    public required MoodComponent MoodComponent { get; set; }
     public SleepComponent? SleepComponent { get; set; }
     public TiredComponent? TiredComponent { get; set; }
     public HungerComponent? HungerComponent { get; set; }

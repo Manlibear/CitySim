@@ -23,4 +23,6 @@ public partial class StreetlightPresenter : PresenterNode
         var mapLayer = MapRegistry.GetLayer(mapID);
         MapRegistry.MarkBlocked(mapID, [mapLayer!.LocalToMap(Position)]);
     }
+
+    public override void PostBootstrap() { }
 }

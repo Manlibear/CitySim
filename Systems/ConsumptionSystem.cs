@@ -62,11 +62,9 @@ public class ConsumptionSystem(World world) : IUpdateSystem
                     var shopLocation = LocationRegistry.Resolve("#" + hungerComp.Tag + memoryComp.GetAvoidStringByNegativeShopQuery(ItemType.Food, hungerComp.Tag), worldPos);
                     if (shopLocation != null)
                     {
-                        var shopLocationPresenter = world.FindEntityByID(shopLocation.EntityID)!.Value.Get<GodotNodeComponent>().Node as ShopLocationPresenter;
-                        var cashierLocation = LocationRegistry.Get(shopLocationPresenter!.CashierLocation!.Name, shopLocation.Map, allowOccupied: true);
-
+                        // the paired location of a shop location is the cashier location
                         // Don't bother sending them across town if nobody's at the counter.
-                        if (cashierLocation == null || !OccupancyRegistry.IsLocationReserved(cashierLocation.Name, cashierLocation.Map))
+                        if (shopLocation.PairedLocation == null || !OccupancyRegistry.IsLocationReserved(shopLocation.PairedLocation.Name, shopLocation.PairedLocation.Map))
                             continue;
 
                         entity.Attach(new PathfindingComponent()
@@ -74,7 +72,7 @@ public class ConsumptionSystem(World world) : IUpdateSystem
                             Destination = shopLocation.Position,
                             OnArriveEffects = [
                                   AttachComponentEffect.Create(new BrowseShopComponent(){
-                                      CashierLocation = cashierLocation,
+                                      CashierLocation = shopLocation.PairedLocation,
                                       ShopLocation = shopLocation,
                                       ItemType = ItemType.Food,
                                       Tag = hungerComp.Tag

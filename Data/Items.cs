@@ -35,5 +35,7 @@ public record ItemDefinition
     public float? PartialUsageStep { get; set; }
     public NeedsDelta? NeedsDelta { get; set; }
     public PartialTier[]? PartialTiers { get; set; }
+    public LocationType? BoughtFrom { get; set; }
+    public decimal BaseCost { get; set; }
 
 }

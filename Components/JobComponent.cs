@@ -9,6 +9,7 @@ public class JobComponent : IComponent
 {
     public required string Employer { get; set; }
     public required string Title { get; set; }
+    public float Performance { get; set; } = 0f;
     private ScheduledTransaction? _wage { get; set; }
     private List<ScheduleEntry>? _schedule { get; set; }
 

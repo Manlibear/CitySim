@@ -44,6 +44,10 @@ Full autonomy simulation. No player character. You build the city, set the condi
 - `ShopBuildingPresenter` sets up the Manager role alongside Cashiers — its own schedule, `ManagerLocation`/`ManagerVisitorLocation` child nodes, shift-end skill gains; will eventually get pulled up into a shared `WorkBuildingPresenter` base once `OfficeBuildingPresenter`/`RestaurantBuildingPresenter` etc. need the same staffing layer
 - Bugs the hiring loop work shook loose: `StateSystem`'s `End`-based activity completion first never fired past the tick an activity started (an unrelated `continue` on unchanged `ActivityType` was skipping the check entirely), then — once reordered — fired every tick forever once triggered, because nothing cleared `End`/`OnCompleteEffects` afterward; both had to be fixed for any `durationHours` `ActivityTypeEffect` (Eat, Work, Interview) to resolve exactly once. `JobSystem`'s interview-dispatch loop was also redispatching an applicant to their interview every tick once `PathfindingComponent` cleared on arrival, endlessly resetting the interview timer. `LocationRegistry.Get`'s `@tag` lookup branch skipped `TryResolveOccupancy`, unlike its other two lookup branches — meaning tag-resolved locations (like the Manager's home `@admin` desk) bypassed occupancy/queue resolution entirely.
 - `Tests/JobLoopTest.cs` — second full integration test: an unemployed citizen applies for the one vacancy in town, crosses a map warp to interview for it, and gets hired, exercising `JobSystem`/`PathfindingSystem`/`StateSystem`/`MemorySystem` together end-to-end
+- Citizens pay rent on the 1st of each in-game month
+- Eviction if unable to pay — citizen becomes homeless, sleep quality drops, energy decay accelerates
+- Landlord entities collect rent, accumulate wealth
+- Can be fired from a job for low performance
 
 ---
 
@@ -64,23 +68,11 @@ Milestone 2 closed out — see ✅ Complete.
 
 ## 🔨 Milestone 3 — Economy Emerges
 
-**Jobs**
-- Buildings have a `StaffingComponent` — job slots, hiring/firing logic
-- Once staffing exists: shops should require a present/on-shift worker to be browsable/buyable, not just have stock in `InventoryRegistry` — pair a shop `Location` with its `WorkLocation`. `HungerLoopTest`'s "Sam" citizen is flavor-only today (no real schedule dispatch) specifically pending this — revisit that test once `ScheduleSystem`-driven work dispatch is exercised there too
-- Firing — currently `EmployerRegistry.MarkJobFilled` only ever gets set `true`; nothing ever frees a slot back up. Evaluate on shift-end `OnComplete` effect using `SkillsComponent` + mood (reuse the scoring `MemorySystem.ComputeMoodFromItem` already does for shop memories) — doable now, no new subsystem needed. Quitting moved to Milestone 4 (see Relationships) — needs manager sentiment + financial trend data that don't exist yet
-- Pull the Manager-role setup out of `ShopBuildingPresenter` into a shared `WorkBuildingPresenter` base (see ✅ Complete — hiring loop) once a second building type needs it
-
 **Shops & Commerce**
 - Marker components doubling as UI status icons (hungry / seeking food / eating, etc.) — no UI yet, deferred
 - Shops have `InventoryComponent` — stock levels, restock triggers
 - Citizens spend money based on needs beyond hunger (low mood → park/bar) — waits on Mood (Milestone 4)
 - Price elasticity seed: expensive shops drain wallets faster, citizens seek cheaper alternatives
-
-**Property & Rent**
-- Residential buildings have units with `RentComponent { float MonthlyRent, Entity? Tenant }`
-- Citizens pay rent on the 1st of each in-game month
-- Eviction if unable to pay — citizen becomes homeless, sleep quality drops, energy decay accelerates
-- Landlord entities collect rent, accumulate wealth
 
 ---
 

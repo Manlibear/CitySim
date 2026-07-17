@@ -21,12 +21,14 @@ public partial class SimWorld : Node
 
     [Export] public float TimeSpeed { get; set; } = 1f;
     [Export] public float TimeMultiplier { get; set; } = 60;
+    [Export] public int Seed {get;set;} = 42;
     public DateTime DateTime { get; set; } = new DateTime(2000, 01, 01, 9, 0, 0);
-    public decimal InterestRate { get; internal set; } = 3.75m;
-    public World World { get; } = new();
+    public decimal InterestRate { get; internal set; } = .0375m;
+    public World World { get; private set; } = null!;
 
     public override void _Ready()
     {
+        World = new(Seed);
         Instance = this;
         CallDeferred(MethodName.Bootstrap);
     }
@@ -67,6 +69,12 @@ public partial class SimWorld : Node
         {
             if (node is not PresenterNode presenter) continue;
             presenter.Bootstrap();
+        }
+
+        foreach (var node in GetTree().GetNodesInGroup("ecs_entity"))
+        {
+            if (node is not PresenterNode presenter) continue;
+            presenter.PostBootstrap();
         }
 
 
@@ -137,7 +145,8 @@ public partial class SimWorld : Node
                 MemoryComponent = entity.Get<MemoryComponent>(),
                 PreferenceComponent = entity.Get<PreferenceComponent>(),
                 SkillsComponent = entity.Get<SkillsComponent>(),
-                CitizenComponent = entity.Get<CitizenComponent>()
+                CitizenComponent = entity.Get<CitizenComponent>(),
+                MoodComponent = entity.Get<MoodComponent>()
             };
 
             if (entity.TryGet<JobComponent>(out var jobComponent))
@@ -228,6 +237,7 @@ public partial class SimWorld : Node
             entity.Attach(citizenData.PreferenceComponent);
             entity.Attach(citizenData.SkillsComponent);
             entity.Attach(citizenData.CitizenComponent);
+            entity.Attach(citizenData.MoodComponent);
             entity.Attach(new WorldPositionComponent { Position = citizenData.Position });
 
             if (citizenData.Job != null)

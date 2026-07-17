@@ -25,7 +25,7 @@ public class SaveGameTest(Node testScene) : TestClass(testScene)
     [Setup]
     public void Setup()
     {
-        var world = new World();
+        var world = new World(42);
         WalletRegistry.Initialize();
         InventoryRegistry.Initialize();
         OccupancyRegistry.Initialize();
@@ -50,6 +50,7 @@ public class SaveGameTest(Node testScene) : TestClass(testScene)
                     Wallet = WalletRegistry.Get(entityId),
                     PreferenceComponent = new PreferenceComponent(),
                     MemoryComponent = new MemoryComponent(),
+                    MoodComponent =  new MoodComponent(),
                     SkillsComponent = new SkillsComponent().WithSkill(Skill.Charisma, 5).WithSkill(Skill.Dexterity, 2),
                     CitizenComponent = new CitizenComponent(),
                     Schedule =
@@ -133,6 +134,12 @@ public class SaveGameTest(Node testScene) : TestClass(testScene)
     }
 
     [Test]
+    public void MoodRoundTrip()
+    {
+        // TODO: implement once mood is actually something
+    }
+
+    [Test]
     public void ActivityTypeRoundTrips()
     {
         Assert.Equal(_originalCitizen.ActivityType.Type, _loadedCitizen.ActivityType.Type);
@@ -194,6 +201,7 @@ public class SaveGameTest(Node testScene) : TestClass(testScene)
                 PreferenceComponent = new PreferenceComponent(),
                 Wallet = WalletRegistry.Get(entityId),
                 CitizenComponent = new CitizenComponent(),
+                MoodComponent = new MoodComponent(),
                 SkillsComponent = new SkillsComponent().WithSkill(Skill.Charisma, 5).WithSkill(Skill.Dexterity, 2),
                 Pathfinding = new PathfindingComponent
                 {

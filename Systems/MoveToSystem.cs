@@ -30,7 +30,15 @@ public class MoveToSystem(World world) : IUpdateSystem
                 }
             }
 
-            var speed = node is PersonPresenter p ? p.MoveSpeed : 64f;
+            var speed =  64f;
+
+            switch(node)
+            {
+                case PersonPresenter p:
+                    speed = p.MoveSpeed;
+                break;
+            }
+
             var stepDist = speed * (float)delta;
 
             if (toTarget.Length() <= stepDist)

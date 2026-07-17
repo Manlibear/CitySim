@@ -24,6 +24,7 @@ public abstract partial class PresenterNode : Node2D
     // Called by SimWorld after entity is assigned. Attach initial components here.
     public abstract void PreBootstrap();
     public abstract void Bootstrap();
+    public abstract void PostBootstrap();
 
     protected void TransitionTo(IPresenterState newState)
     {

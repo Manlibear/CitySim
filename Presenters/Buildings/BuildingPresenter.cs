@@ -97,8 +97,12 @@ public partial class BuildingPresenter : PresenterNode
                 if (node is not PresenterNode presenter) continue;
                 presenter.Bootstrap();
             }
+
+
         }
     }
+
+    public override void PostBootstrap() { }
 
     public override void _Process(double delta)
     {

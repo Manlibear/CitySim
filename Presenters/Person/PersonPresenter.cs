@@ -53,6 +53,10 @@ public partial class PersonPresenter : PresenterNode
         Entity.Attach(new PreferenceComponent());
         Entity.Attach(new SkillsComponent());
         Entity.Attach(new CitizenComponent());
+        Entity.Attach(new MoodComponent());
+        Entity.Attach(new InterestsComponent());
+        Entity.Attach(new MemoryComponent());
+        Entity.Attach(new RelationshipComponent());
 
         var nameComp = Entity.Attach(new NameComponent(FirstName, Surname));
         Name = $"{nameComp.FirstName} {nameComp.Surname}";
@@ -61,6 +65,8 @@ public partial class PersonPresenter : PresenterNode
         TransitionTo(IdleState.Instance);
         PlayAnimation("idle");
     }
+
+    public override void PostBootstrap(){}
 
     public void RebuildLayers()
     {

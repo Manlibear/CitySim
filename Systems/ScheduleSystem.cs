@@ -63,7 +63,7 @@ public class ScheduleSystem(World world) : IUpdateSystem
                         var resolvedLocaton = LocationRegistry.Resolve(nextEntry.LocationPath, currentWorldPos);
                         if (resolvedLocaton == null)
                         {
-                            // we could find it before, but it's not avaiable now, still have to chuck it out
+                            // we could find it before, but it's not avaiable now, have to chuck it out
                             scheduleComp.RemoveEntry(nextEntry);
                             continue;
                         }

@@ -17,6 +17,7 @@ public class MemorySystem(World world) : IUpdateSystem
             var factComp = entity.Get<FactComponent>();
             var memoryComp = entity.Get<MemoryComponent>();
             var needsComp = entity.Get<NeedsComponent>();
+            var wallet = WalletRegistry.Get(entity.Id);
 
             while (factComp.Facts.Any())
             {
@@ -34,7 +35,8 @@ public class MemorySystem(World world) : IUpdateSystem
                                 Available = false,
                                 EntityID = itr.EntityID,
                                 Item = itr.Item,
-                                Satisfaction = -ComputeMoodFromItem(entity, needsComp, itemDef.Type) //TODO: This needs inflating
+                                //TODO: This needs inflating
+                                Satisfaction = -ComputeMoodFromItem(entity, needsComp, itemDef.Type)
                             });
                         }
                         break;
@@ -60,16 +62,49 @@ public class MemorySystem(World world) : IUpdateSystem
                         break;
 
                     case MortgagePaidOffFact mpof:
-                        memoryComp.Memories.Add(new FinancialMemory(){
-                             Satisfaction = 40
+                        memoryComp.Memories.Add(new FinancialMemory()
+                        {
+                            Satisfaction = 40
                         });
                         break;
 
                     case MissedPaymentFact mpf:
-                        memoryComp.Memories.Add(new FinancialMemory(){
-                             Satisfaction = -((float)mpf.Amount * .1f)
+                        memoryComp.Memories.Add(new FinancialMemory()
+                        {
+                            Satisfaction = -((float)mpf.Amount * .1f)
                         });
-                    break;
+                        break;
+
+                    case FiredFromJobFact ffjf:
+                        memoryComp.Memories.Add(new JobMemory()
+                        {
+                            Employer = ffjf.Employer,
+                            Satisfaction = -100
+                        });
+                        break;
+
+                    case ItemCostFact icf:
+
+                        var satisfactionSign = icf.CostFactor > 1 ? -1 : 1;
+
+                        memoryComp.Memories.Add(new ItemCostMemory()
+                        {
+                            Item = icf.Item,
+                            EntityID = icf.ShopID,
+                            //TODO: Yet more bullshit maths
+                            Satisfaction = (float)((Globals.ComfortableBalance / wallet.Balance) * icf.CostFactor) * 5f * satisfactionSign
+                        });
+                        break;
+
+                    case SocialInteractionFact sif:
+
+                        memoryComp.Memories.Add(new SocialInteractionMemory()
+                        {
+                            OtherPersonID = sif.OtherPersonID,
+                            Satisfaction = (sif.Positive ? 1 : -1) * (float)sif.Duration
+                        });
+
+                        break;
                 }
             }
         }
@@ -77,10 +112,11 @@ public class MemorySystem(World world) : IUpdateSystem
 
     private float ComputeMoodFromItem(Entity entity, NeedsComponent needsComp, ItemType itemType)
     {
+        // TODO: This is complete crap
         return itemType switch
         {
             ItemType.Food => 1 - needsComp.Satiety,
-            _ => 0,
+            _ => .2f,
         };
     }
 }

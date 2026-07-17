@@ -34,7 +34,7 @@ public class JobLoopTest(Node testScene) : TestClass(testScene)
     [Setup]
     public void Setup()
     {
-        _world = new World();
+        _world = new World(42);
 
         SimWorld.Instance = new SimWorld
         {
@@ -101,10 +101,13 @@ public class JobLoopTest(Node testScene) : TestClass(testScene)
         _jamie.Attach(new NeedsComponent { Satiety = 1f, Energy = 1f, Social = 1f });
         _jamie.Attach(new FactComponent());
         _jamie.Attach(new MemoryComponent());
+
         // Charisma 10 against a Charisma-2 requirement clears the interview at any roll of the
         // dice, so the test isn't flaky on the hiring decision itself — only the mechanical
         // apply/travel/interview/hire pipeline is under test here.
         _jamie.Attach(new SkillsComponent().WithSkill(Skill.Charisma, 10f));
+
+        WalletRegistry.Register(_jamie.Id);
 
         _story.Add("Jamie is out of work and living at Home.");
     }

@@ -9,12 +9,10 @@ using Godot;
 
 namespace CitySim.Presenters.Buildings;
 
-public partial class ShopBuildingPresenter : BuildingPresenter
+public partial class ShopBuildingPresenter : WorkBuildingPresenter
 {
     [Export] public float CashierWage { get; set; }
-    [Export] public float ManagerWage { get; set; }
-    [Export] public required Godot.Collections.Array<OpeningHours> OpeningHours { get; set; }
-    [Export] public int LunchHour { get; set; } = 12;
+    [Export] public float PriceFactor { get; set; }
 
     public override void PreBootstrap()
     {
@@ -24,49 +22,7 @@ public partial class ShopBuildingPresenter : BuildingPresenter
 
         EmployerRegistry.AddEmployer(Name);
 
-        var managerVisitorLocation = _interior.FindChild("ManagerVisitorLocation", recursive: true)  ?? throw new KeyNotFoundException($"Cant find ManagerVisitorLocation for {Name}");
-        var managerWorkLocation = _interior.FindChild("ManagerLocation", recursive: true) as LocationPresenter ?? throw new KeyNotFoundException($"Cant find ManagerLocation for {Name}");
-
-        var managerSchedule = OpeningHours?.Select(x => new ScheduleEntry()
-        {
-            LocationPath = $"/{Name}/ManagerLocation",
-            Day = x.Day,
-            Time = new TimeOnly(x.Open + 1),
-            OnArriveEffects = [
-                new ActivityTypeEffect(ActivityType.Work, ActivityPriority.Work, LunchHour - (x.Open + 1)),
-                  new FacingDirectionEffect(managerWorkLocation.FacingDirection),
-             ]
-        }).ToList() ?? [];
-
-        managerSchedule.Add(new ScheduleEntry()
-        {
-            LocationPath = $"/{Name}/BreakLocation*",
-            Time = new TimeOnly(LunchHour),
-            OnArriveEffects = [
-                  new ActivityTypeEffect(ActivityType.Idle, ActivityPriority.Work, 1),
-             ]
-        });
-
-        managerSchedule.AddRange(OpeningHours?.Select(x => new ScheduleEntry()
-        {
-            LocationPath = $"/{Name}/ManagerLocation",
-            Day = x.Day,
-            Time = new TimeOnly(LunchHour + 1),
-            OnArriveEffects = [
-                  new ActivityTypeEffect(ActivityType.Work, ActivityPriority.Work, x.Close - LunchHour)
-                  {
-                        OnCompleteEffects = [
-                            new SkillDeltaEffect(new(){
-                                [Skill.Charisma] = .1f,
-                                [Skill.Wisdom] = .05f,
-                            })
-                        ]
-                  },
-                  new FacingDirectionEffect(managerWorkLocation.FacingDirection),
-             ]
-        }).ToList() ?? []);
-
-        EmployerRegistry.AddJob(Name, "Manager", (decimal)ManagerWage, managerSchedule, new() { [Skill.Charisma] = 4f, [Skill.Intelligence] = 3f, [Skill.Wisdom] = 2f });
+        var managerVisitorLocation = _interior.FindChild("ManagerVisitorLocation", recursive: true) ?? throw new KeyNotFoundException($"Cant find ManagerVisitorLocation for {Name}");
 
         int idx = 0;
         foreach (var location in _interior.FindChildren("CashierLocation*", recursive: true).Cast<LocationPresenter>())
@@ -103,7 +59,8 @@ public partial class ShopBuildingPresenter : BuildingPresenter
                                 new SkillDeltaEffect(new(){
                                     [Skill.Charisma] = .1f,
                                     [Skill.Dexterity] = .05f,
-                                })
+                                }),
+                                new JobPerformanceEffect()
                             ]
                       },
                       new FacingDirectionEffect(location.FacingDirection),
@@ -120,5 +77,6 @@ public partial class ShopBuildingPresenter : BuildingPresenter
     {
         base.Bootstrap();
         Entity.Attach(new WalletComponent());
+        InventoryRegistry.Register(Entity.Id);
     }
 }

@@ -87,6 +87,11 @@ public static class LocationRegistry
                          .OrderBy(x => x.Value.Position.Tile.ManhattanDistanceFrom(position.Tile)).FirstOrDefault().Value;
     }
 
+    public static Location GetNearestOfLocations(List<LocationType> locations, WorldPosition position)
+    {
+        return _locations.Where(x => locations.Contains(x.Value.Type)).OrderBy(x => x.Value.Position.Tile.ManhattanDistanceFrom(position.Tile)).Select(x => x.Value).First();
+    }
+
     public static Location? NearestWithTag(string tag, WorldPosition position, Guid[] avoids)
     {
         return _locations.Where(x => x.Value.Position.MapID == position.MapID && (x.Value.Tags?.Contains(tag) ?? false))

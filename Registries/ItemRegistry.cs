@@ -50,6 +50,7 @@ public static class ItemRegistry
             NeedsDelta = new() { Duration = SimWorld.Instance.SecondsFromMinutes(3), SatietyDelta = .2f },
             SlotMax = 1,
             PartialUsage = true,
+            BaseCost = 1m,
             PartialUsageStep = .05f, // 20 slices of bread per loaf
             PartialTiers = [
                 new(.75f, "Most of a loaf of", "a bit extra", true),
@@ -67,6 +68,7 @@ public static class ItemRegistry
             Description = "Lovely salted roasted peanuts",
             PartialUsage = false,
             SlotMax = 5,
+            BaseCost = 1m,
             Tags = ["salty", "savoury", "nutty", "snack"],
             NeedsDelta = new() { Duration = SimWorld.Instance.SecondsFromMinutes(1), SatietyDelta = .2f },
         },
@@ -79,6 +81,7 @@ public static class ItemRegistry
             Description = "Creamy milk chocolate",
             PartialUsage = false,
             SlotMax = 5,
+            BaseCost = 1m,
             Tags = ["sweet", "chocolate", "treat", "snack"],
             NeedsDelta = new() { Duration = SimWorld.Instance.SecondsFromMinutes(1), SatietyDelta = .2f },
         }

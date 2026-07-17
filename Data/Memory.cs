@@ -9,6 +9,8 @@ public record IMemory
         // longer Lifespan, so severe memories fade slower than trivial ones.
         get
         {
+            if (IsPermanent) return OriginalSatisfaction;
+
             var progress = Lifespan > 0f ? Math.Clamp(Age / Lifespan, 0f, 1f) : 1f;
             return OriginalSatisfaction * MathF.Pow(1f - progress, 2f);
         }
@@ -20,14 +22,21 @@ public record IMemory
         }
     }
 
+    public bool IsPermanent { get; set; }
     public float Age { get; set; }
     private float Lifespan { get; set; }
     private float OriginalSatisfaction { get; set; }
+
 }
 
-public record ShopQueryMemory : IMemory
+public record IShopMemory : IMemory
 {
+
     public Guid EntityID { get; set; }
+}
+
+public record ShopQueryMemory : IShopMemory
+{
     public Item? Item { get; set; }
     public string? Tag { get; set; }
     public ItemType? ItemType { get; set; }
@@ -40,3 +49,18 @@ public record ConfidenceMemory : IMemory
 }
 
 public record FinancialMemory : IMemory { }
+
+public record JobMemory : IMemory
+{
+    public required string Employer { get; set; }
+}
+
+public record ItemCostMemory : IShopMemory
+{
+    public Item Item { get; set; }
+}
+
+public record SocialInteractionMemory : IMemory
+{
+    public Guid OtherPersonID { get; set; }
+}
