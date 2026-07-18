@@ -137,8 +137,8 @@ public class SocialSystem(World world) : IUpdateSystem
                     var targetRelationship = target.Get<RelationshipComponent>();
 
                     var socialTick = Globals.SocialRelationshipPerSecond * (float)delta * (socialComp.Positive ? 1 : -1);
-                    entityRelationship.UpdateRelationship(target.Id, socialTick);
-                    targetRelationship.UpdateRelationship(entity.Id, socialTick);
+                    entityRelationship.UpdateRelationship(target.Id, socialTick * 10f);
+                    targetRelationship.UpdateRelationship(entity.Id, socialTick * 10f);
 
                     entityNeeds.Social += socialTick;
                     targetNeeds.Social += socialTick;
@@ -147,6 +147,19 @@ public class SocialSystem(World world) : IUpdateSystem
                     targetSocial.Duration += delta;
                 }
             }
+        }
+
+        // relationship decay
+        foreach (var entity in world.Entities.With<RelationshipComponent>())
+        {
+            var relationship = entity.Get<RelationshipComponent>();
+            foreach (var person in relationship.RelationshipLinks)
+            {
+                if(entity.TryGet<SocialInteractionComponent>(out var social) && social!.TargetEntityID == person) continue; //  these two are talking
+
+                relationship.UpdateRelationship(person, -(Globals.SocialRelationshipPerSecond * (float)delta));
+            }
+
         }
     }
 }

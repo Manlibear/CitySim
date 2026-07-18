@@ -23,5 +23,5 @@ public static class Globals
     public const float SocialScoreSensitivity = 50f;
 
     // this will be effectively doubled as both social components in the pair will fire
-    public const float SocialRelationshipPerSecond = .5f;
+    public const float SocialRelationshipPerSecond = .005f;
 }

@@ -49,6 +49,7 @@ Full autonomy simulation. No player character. You build the city, set the condi
 - Landlord entities collect rent, accumulate wealth
 - Can be fired from a job for low performance
 - Social interaction based on proximity
+- RelationshipComponent keeps track of links to other citizens
 
 ---
 
@@ -94,7 +95,6 @@ Milestone 2 closed out — see ✅ Complete.
 - Social interrupt — `Social < MinSocialNeed` cancels current schedule, sends citizen to nearest park/leisure spot to seek out the proximity interactions above
 
 **Relationships**
-- Citizens who interact frequently build `RelationshipComponent` links
 - Friends visit each other's homes, sit together at restaurants
 - Relationships decay without contact
 - Quitting — broader than firing's shift-end skill/mood check (Milestone 3); needs a citizen's financial trend (wallet trajectory, not just balance), manager sentiment (requires a manager-as-entity relationship link), and longer-term goals/aspirations to weigh against staying. Waits on `RelationshipComponent`/manager links above plus `MoodComponent` (this milestone) existing first

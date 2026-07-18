@@ -215,6 +215,10 @@ public class SocialLoopTest(Node testScene) : TestClass(testScene)
         Assert.True(annaToBen!.Score > 500f, "Anna's relationship score toward Ben never improved.");
         Assert.True(benToAnna!.Score > 500f, "Ben's relationship score toward Anna never improved.");
 
+
+        GD.Print($"= Ben's relationship to Anna: 500 -> {benToAnna.Score:F3}");
+        GD.Print($"= Anna's relationship to Ben: 500 -> {annaToBen.Score:F3}");
+
         Assert.True(
             _anna.Get<MemoryComponent>().Memories.Any(x => x is SocialInteractionMemory sim && sim.OtherPersonID == _ben.Id),
             "Anna never recorded a memory of the social interaction with Ben.");

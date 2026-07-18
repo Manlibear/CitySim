@@ -1,6 +1,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json.Serialization;
 using CitySim.Data;
 using CitySim.ECS;
@@ -14,6 +15,8 @@ public class RelationshipComponent : IComponent
     private Dictionary<Guid, Relationship> _relationships { get; set; } = [];
 
     public Relationship? GetRelationship(Guid person) => _relationships.ContainsKey(person) ? _relationships[person] : null;
+
+    public IEnumerable<Guid> RelationshipLinks => _relationships.Select(x => x.Key);
 
     public void AddRelationship(Guid person)
     {
