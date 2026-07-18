@@ -65,3 +65,10 @@ public record SocialInteractionMemory : IMemory
 {
     public Guid OtherPersonID { get; set; }
 }
+
+public record HousingMemory : IMemory { }
+
+public record NeedCrisisMemory : IMemory
+{
+    public NeedType Need { get; set; }
+}

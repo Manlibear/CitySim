@@ -12,10 +12,11 @@ public class MemorySystem(World world) : IUpdateSystem
 {
     public void Update(double delta)
     {
-        foreach (var entity in world.Entities.With<FactComponent>().With<MemoryComponent>().ToList())
+        foreach (var entity in world.Entities.With<FactComponent>().With<MemoryComponent>().With<JournalComponent>().ToList())
         {
             var factComp = entity.Get<FactComponent>();
             var memoryComp = entity.Get<MemoryComponent>();
+            var journalComp = entity.Get<JournalComponent>();
             var needsComp = entity.Get<NeedsComponent>();
             var wallet = WalletRegistry.Get(entity.Id);
 
@@ -38,6 +39,8 @@ public class MemorySystem(World world) : IUpdateSystem
                                 //TODO: This needs inflating
                                 Satisfaction = -ComputeMoodFromItem(entity, needsComp, itemDef.Type)
                             });
+
+                            journalComp.AddEntry($"Couldn't get the {itemDef.Name} they were after.", null);
                         }
                         break;
 
@@ -59,6 +62,8 @@ public class MemorySystem(World world) : IUpdateSystem
                             Satisfaction = jif.Success ? 20 : -5,
                             Type = ActivityType.Interview
                         });
+
+                        journalComp.AddEntry(jif.Success ? "Nailed the job interview and got hired!" : "The job interview didn't go their way.", null);
                         break;
 
                     case MortgagePaidOffFact mpof:
@@ -66,6 +71,8 @@ public class MemorySystem(World world) : IUpdateSystem
                         {
                             Satisfaction = 40
                         });
+
+                        journalComp.AddEntry("Paid off the mortgage.", null);
                         break;
 
                     case MissedPaymentFact mpf:
@@ -73,6 +80,8 @@ public class MemorySystem(World world) : IUpdateSystem
                         {
                             Satisfaction = -((float)mpf.Amount * .1f)
                         });
+
+                        journalComp.AddEntry($"Missed a payment of {mpf.Amount:C}.", null);
                         break;
 
                     case FiredFromJobFact ffjf:
@@ -81,6 +90,8 @@ public class MemorySystem(World world) : IUpdateSystem
                             Employer = ffjf.Employer,
                             Satisfaction = -100
                         });
+
+                        journalComp.AddEntry($"Got fired from {ffjf.Employer}.", null);
                         break;
 
                     case ItemCostFact icf:
@@ -104,6 +115,26 @@ public class MemorySystem(World world) : IUpdateSystem
                             Satisfaction = (sif.Positive ? 1 : -1) * (float)sif.Duration
                         });
 
+                        journalComp.AddEntry(sif.Positive ? "Had a nice chat." : "Had an awkward exchange.", sif.OtherPersonID);
+                        break;
+
+                    case EvictedFact ef:
+                        memoryComp.Memories.Add(new HousingMemory()
+                        {
+                            Satisfaction = -80
+                        });
+
+                        journalComp.AddEntry("Got evicted from their home.", null);
+                        break;
+
+                    case NeedCrisisFact ncf:
+                        memoryComp.Memories.Add(new NeedCrisisMemory()
+                        {
+                            Need = ncf.Need,
+                            Satisfaction = -10
+                        });
+
+                        journalComp.AddEntry(ncf.Need == NeedType.Hunger ? "Went hungry for a good while." : "Ran themselves ragged with exhaustion.", null);
                         break;
                 }
             }

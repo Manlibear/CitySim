@@ -1,6 +1,7 @@
 using System;
 using CitySim.Components;
 using CitySim.Data;
+using CitySim.Data.Facts;
 using CitySim.Data.StateEffects;
 using CitySim.ECS;
 using CitySim.Helpers;
@@ -74,6 +75,7 @@ public class NeedsSystem(World world) : IUpdateSystem
             {
                 entity.InterruptPathfinding();
                 entity.Attach(new TiredComponent());
+                entity.Get<FactComponent>().Add(new NeedCrisisFact { Need = NeedType.Exhaustion });
             }
             else if (needsComp.Energy >= Globals.MinEnergyNeed && entity.Has<TiredComponent>())
             {
@@ -84,6 +86,7 @@ public class NeedsSystem(World world) : IUpdateSystem
             {
                 entity.InterruptPathfinding();
                 entity.Attach(new HungerComponent("snack"));
+                entity.Get<FactComponent>().Add(new NeedCrisisFact { Need = NeedType.Hunger });
             }
             else if (needsComp.Satiety >= Globals.MinSatietyNeed && entity.Has<HungerComponent>())
             {

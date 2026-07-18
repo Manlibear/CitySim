@@ -101,6 +101,8 @@ public class JobLoopTest(Node testScene) : TestClass(testScene)
         _jamie.Attach(new NeedsComponent { Satiety = 1f, Energy = 1f, Social = 1f });
         _jamie.Attach(new FactComponent());
         _jamie.Attach(new MemoryComponent());
+        _jamie.Attach(new JournalComponent());
+        _jamie.Attach(new MoodComponent { Mood = .5f });
 
         // Charisma 10 against a Charisma-2 requirement clears the interview at any roll of the
         // dice, so the test isn't flaky on the hiring decision itself — only the mechanical

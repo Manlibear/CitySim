@@ -118,12 +118,16 @@ public class JobSystem(World world) : IUpdateSystem
             var jobApplicationResult = entity.Get<JobApplicationResultComponent>();
             var skillsComp = entity.Get<SkillsComponent>();
             var memoryComp = entity.Get<MemoryComponent>();
+            var moodComp = entity.Get<MoodComponent>();
             var jobSkills = EmployerRegistry.GetJobSkills(jobApplicationResult.Employer, jobApplicationResult.Job);
 
             var negativeInterviewsCount = memoryComp.Memories.Count(x => x is ConfidenceMemory cm && cm.Type == ActivityType.Interview && cm.Satisfaction < 0);
 
-            // TODO: this is just quick math, refine these numbers, draw in mood component when it becomes a thing
-            var interviewRoll = new RandomNumberGenerator().RandfRange(.8f - (negativeInterviewsCount / 15f), 1 + skillsComp.GetSkill(Skill.Charisma) / 30f);
+            // Mood is 0-1, so centre it on .5f - a sour mood drags both bounds down, a good one lifts them.
+            var moodModifier = (moodComp.Mood - .5f) * Globals.MoodInterviewModifier;
+
+            // TODO: this is just quick math, refine these numbers
+            var interviewRoll = new RandomNumberGenerator().RandfRange(.8f - (negativeInterviewsCount / 15f) + moodModifier, 1 + skillsComp.GetSkill(Skill.Charisma) / 30f + moodModifier);
 
             bool success = true;
 

@@ -24,6 +24,13 @@ public static class Globals
 
     // this will be effectively doubled as both social components in the pair will fire
     public const float SocialRelationshipPerSecond = .005f;
-    public const float MoodNeedsModifier = 5f;
-    public const float MoodMemoryMultiplier = .1f;
+    public const float MoodNeedsModifier = .6f;
+    public const float MoodMemoryMultiplier = .01f;
+    public const float MoodInterviewModifier = .4f;
+    public const float MoodSocialModifier = 30f;
+    public const float MoodJobPerformanceModifier = .4f;
+
+    // one sample every 15 sim-minutes, capped at 288 samples (~72 hours) of history
+    public const float MoodSampleIntervalMinutes = 15f;
+    public const int MoodHistoryMaxSamples = 288;
 }

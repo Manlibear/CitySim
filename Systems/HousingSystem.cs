@@ -62,6 +62,7 @@ public class HousingSystem(World world) : IUpdateSystem
 
                     homeInv!.TransferAll(ref personInv!);
 
+                    entity.Get<FactComponent>().Add(new EvictedFact() { HomeMap = homeComp.MapID });
                     entity.Detach<HomeComponent>();
 
                 }

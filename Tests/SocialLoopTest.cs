@@ -94,8 +94,10 @@ public class SocialLoopTest(Node testScene) : TestClass(testScene)
         _anna.Attach(new NeedsComponent { Satiety = 1f, Energy = 1f, Social = 0.3f });
         _anna.Attach(new FactComponent());
         _anna.Attach(new MemoryComponent());
+        _anna.Attach(new JournalComponent());
         _anna.Attach(new RelationshipComponent());
         _anna.Attach(new InterestsComponent());
+        _anna.Attach(new MoodComponent { Mood = .5f });
         WalletRegistry.Register(_anna.Id);
 
         _ben = _world.CreateEntity();
@@ -106,8 +108,10 @@ public class SocialLoopTest(Node testScene) : TestClass(testScene)
         _ben.Attach(new NeedsComponent { Satiety = 1f, Energy = 1f, Social = 0.3f });
         _ben.Attach(new FactComponent());
         _ben.Attach(new MemoryComponent());
+        _ben.Attach(new JournalComponent());
         _ben.Attach(new RelationshipComponent());
         _ben.Attach(new InterestsComponent());
+        _ben.Attach(new MoodComponent { Mood = .5f });
         _ben.Attach(new GodotNodeComponent { Node = new PersonPresenter { MoveSpeed = 64f } });
         WalletRegistry.Register(_ben.Id);
 

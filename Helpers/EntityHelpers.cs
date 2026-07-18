@@ -45,4 +45,12 @@ public static class EntityHelpers
             }
         }
     }
+
+    public static void AddJournalEntry(this Entity entity, string text, Guid? otherPersonID = null)
+    {
+        if (entity.TryGet<JournalComponent>(out var journalComp))
+        {
+            journalComp!.AddEntry(text, otherPersonID);
+        }
+    }
 }

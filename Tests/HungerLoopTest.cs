@@ -123,6 +123,7 @@ public class HungerLoopTest(Node testScene) : TestClass(testScene)
         _mark.Attach(new HomeComponent(MapId) { Cost = new() { Amount = 500, DayOfMonth = 2 } });
         _mark.Attach(new FactComponent());
         _mark.Attach(new MemoryComponent());
+        _mark.Attach(new JournalComponent());
         _mark.Attach(new PreferenceComponent
         {
             Preferences = new()

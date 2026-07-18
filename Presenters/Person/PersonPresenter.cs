@@ -59,6 +59,7 @@ public partial class PersonPresenter : PresenterNode
         Entity.Attach(new InterestsComponent());
         Entity.Attach(new MemoryComponent());
         Entity.Attach(new RelationshipComponent());
+        Entity.Attach(new JournalComponent());
 
         var nameComp = Entity.Attach(new NameComponent(FirstName, Surname));
         Name = $"{nameComp.FirstName} {nameComp.Surname}";

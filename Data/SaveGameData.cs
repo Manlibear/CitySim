@@ -36,6 +36,7 @@ public class CitizenSaveData
     public BrowseShopComponent? BrowseShopComponent { get; set; }
     public DelayedEffectComponent? DelayedEffectComponent { get; set; }
     public required PreferenceComponent PreferenceComponent { get; set; }
+    public required JournalComponent JournalComponent { get; set; }
 }
 
 public class RegistrySaveData

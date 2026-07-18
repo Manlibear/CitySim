@@ -122,6 +122,12 @@ public class SocialSystem(World world) : IUpdateSystem
                     if (sharedInterests.Any())
                         socialScore += sharedInterests.First().Intensity;
 
+                    // Mood is 0-1, so centre it on .5f - a sour mood on either side drags the
+                    // chat down, a good one on either side lifts it.
+                    var entityMood = entity.Get<MoodComponent>();
+                    var targetMood = target.Get<MoodComponent>();
+                    socialScore += (entityMood.Mood - .5f) * Globals.MoodSocialModifier;
+                    socialScore += (targetMood.Mood - .5f) * Globals.MoodSocialModifier;
 
                     var successChance = 1f / (1f + MathF.Exp(-socialScore / Globals.SocialScoreSensitivity));
                     socialComp.Positive = targetSocial.Positive = rng.Randf() <= successChance;

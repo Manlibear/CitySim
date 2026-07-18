@@ -33,6 +33,19 @@ public class SaveGameTest(Node testScene) : TestClass(testScene)
 
         WalletRegistry.Register(entityId, new Wallet() { Balance = 50 });
 
+        SimWorld.Instance = new SimWorld
+        {
+            TimeSpeed = 1f,
+            TimeMultiplier = 60f,
+            DateTime = new DateTime(2026, 3, 14, 9, 0, 0),
+        };
+
+        var otherPersonId = Guid.NewGuid();
+        var journal = new JournalComponent();
+        journal.AddEntry("Had a chat on the corner about the weather.", otherPersonId);
+        SimWorld.Instance.DateTime = SimWorld.Instance.DateTime.AddMinutes(30);
+        journal.AddEntry("Got the job at Kwik-E-Mart!", null);
+
         _original = new SaveGameData
         {
             WorldTime = new DateTime(2026, 3, 14, 9, 30, 0),
@@ -50,7 +63,18 @@ public class SaveGameTest(Node testScene) : TestClass(testScene)
                     Wallet = WalletRegistry.Get(entityId),
                     PreferenceComponent = new PreferenceComponent(),
                     MemoryComponent = new MemoryComponent(),
-                    MoodComponent =  new MoodComponent(),
+                    JournalComponent = journal,
+                    MoodComponent =  new MoodComponent
+                    {
+                        Mood = .62f,
+                        LastSampleTime = new DateTime(2026, 3, 14, 9, 15, 0),
+                        History =
+                        [
+                            new MoodSample { Timestamp = new DateTime(2026, 3, 14, 8, 45, 0), Mood = .55f },
+                            new MoodSample { Timestamp = new DateTime(2026, 3, 14, 9, 0, 0), Mood = .58f },
+                            new MoodSample { Timestamp = new DateTime(2026, 3, 14, 9, 15, 0), Mood = .62f },
+                        ],
+                    },
                     SkillsComponent = new SkillsComponent().WithSkill(Skill.Charisma, 5).WithSkill(Skill.Dexterity, 2),
                     CitizenComponent = new CitizenComponent(),
                     Schedule =
@@ -122,6 +146,12 @@ public class SaveGameTest(Node testScene) : TestClass(testScene)
     }
 
     [Test]
+    public void JournalRoundTrip()
+    {
+        Assert.Equal(_originalCitizen.JournalComponent.GetAllEntries(), _loadedCitizen.JournalComponent.GetAllEntries());
+    }
+
+    [Test]
     public void SkillsRoundTrip()
     {
         Assert.Equal(_originalCitizen.SkillsComponent.GetSkill(Skill.Charisma), _loadedCitizen.SkillsComponent.GetSkill(Skill.Charisma));
@@ -136,7 +166,14 @@ public class SaveGameTest(Node testScene) : TestClass(testScene)
     [Test]
     public void MoodRoundTrip()
     {
-        // TODO: implement once mood is actually something
+        Assert.Equal(_originalCitizen.MoodComponent.Mood, _loadedCitizen.MoodComponent.Mood);
+        Assert.Equal(_originalCitizen.MoodComponent.LastSampleTime, _loadedCitizen.MoodComponent.LastSampleTime);
+        Assert.Equal(_originalCitizen.MoodComponent.History.Count, _loadedCitizen.MoodComponent.History.Count);
+        for (var i = 0; i < _originalCitizen.MoodComponent.History.Count; i++)
+        {
+            Assert.Equal(_originalCitizen.MoodComponent.History[i].Timestamp, _loadedCitizen.MoodComponent.History[i].Timestamp);
+            Assert.Equal(_originalCitizen.MoodComponent.History[i].Mood, _loadedCitizen.MoodComponent.History[i].Mood);
+        }
     }
 
     [Test]
@@ -202,6 +239,7 @@ public class SaveGameTest(Node testScene) : TestClass(testScene)
                 Wallet = WalletRegistry.Get(entityId),
                 CitizenComponent = new CitizenComponent(),
                 MoodComponent = new MoodComponent(),
+                JournalComponent = new JournalComponent(),
                 SkillsComponent = new SkillsComponent().WithSkill(Skill.Charisma, 5).WithSkill(Skill.Dexterity, 2),
                 Pathfinding = new PathfindingComponent
                 {

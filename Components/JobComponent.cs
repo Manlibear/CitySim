@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using CitySim.Data;
 using CitySim.ECS;
@@ -10,6 +11,10 @@ public class JobComponent : IComponent
     public required string Employer { get; set; }
     public required string Title { get; set; }
     public float Performance { get; set; } = 0f;
+
+    // when JobPerformanceEffect last reviewed this citizen's mood history - lets it average only
+    // the samples from the shift just worked, rather than an arbitrary fixed lookback window
+    public DateTime? LastPerformanceReviewTime { get; set; }
     private ScheduledTransaction? _wage { get; set; }
     private List<ScheduleEntry>? _schedule { get; set; }
 

@@ -148,7 +148,8 @@ public partial class SimWorld : Node
                 PreferenceComponent = entity.Get<PreferenceComponent>(),
                 SkillsComponent = entity.Get<SkillsComponent>(),
                 CitizenComponent = entity.Get<CitizenComponent>(),
-                MoodComponent = entity.Get<MoodComponent>()
+                MoodComponent = entity.Get<MoodComponent>(),
+                JournalComponent = entity.Get<JournalComponent>()
             };
 
             if (entity.TryGet<JobComponent>(out var jobComponent))
@@ -240,6 +241,7 @@ public partial class SimWorld : Node
             entity.Attach(citizenData.SkillsComponent);
             entity.Attach(citizenData.CitizenComponent);
             entity.Attach(citizenData.MoodComponent);
+            entity.Attach(citizenData.JournalComponent);
             entity.Attach(new WorldPositionComponent { Position = citizenData.Position });
 
             if (citizenData.Job != null)
