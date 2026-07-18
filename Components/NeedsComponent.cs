@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net.Http.Metrics;
 using CitySim.Data;
 using CitySim.ECS;
 
@@ -16,4 +17,9 @@ public class NeedsComponent : IComponent
     public DateTime? LastSocialSchedule { get; set; }
 
     public List<NeedsDelta> NeedsDeltas { get; set; } = [];
+
+    public float Sum()
+    {
+        return Satiety + Social + Energy - 1.5f;
+    }
 }
