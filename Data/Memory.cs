@@ -1,5 +1,6 @@
+namespace CitySim.Data;
+
 using System;
-using CitySim.Data;
 
 public record IMemory
 {

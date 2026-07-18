@@ -24,4 +24,6 @@ public static class Globals
 
     // this will be effectively doubled as both social components in the pair will fire
     public const float SocialRelationshipPerSecond = .005f;
+    public const float MoodNeedsModifier = 5f;
+    public const float MoodMemoryMultiplier = .1f;
 }
