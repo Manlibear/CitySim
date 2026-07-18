@@ -13,22 +13,13 @@ public static class Vector2IHelper
 {
     public static Vector2I FromFacingDirection(FacingDirection direction)
     {
-         switch (direction)
+        return direction switch
         {
-            case FacingDirection.South:
-                return Vector2I.Down;
-
-            case FacingDirection.North:
-                return Vector2I.Up;
-
-            case FacingDirection.East:
-                return  Vector2I.Right;
-
-            case FacingDirection.West:
-                return Vector2I.Left;
-
-            default:
-                throw new ArgumentException("Unhandled direction");
-        }
+            FacingDirection.South => Vector2I.Down,
+            FacingDirection.North => Vector2I.Up,
+            FacingDirection.East => Vector2I.Right,
+            FacingDirection.West => Vector2I.Left,
+            _ => throw new ArgumentException("Unhandled direction"),
+        };
     }
 }

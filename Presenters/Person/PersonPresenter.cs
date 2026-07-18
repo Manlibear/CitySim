@@ -19,6 +19,8 @@ public partial class PersonPresenter : PresenterNode
     [Export] public string FirstName { get; set; } = "";
     [Export] public string Surname { get; set; } = "";
 
+    private string _currentAnimation { get; set; }
+
     public FacingDirection Facing { get; set; } = FacingDirection.South;
 
     public override void PreBootstrap() { }
@@ -66,7 +68,7 @@ public partial class PersonPresenter : PresenterNode
         PlayAnimation("idle");
     }
 
-    public override void PostBootstrap(){}
+    public override void PostBootstrap() { }
 
     public void RebuildLayers()
     {
@@ -77,11 +79,17 @@ public partial class PersonPresenter : PresenterNode
 
     public void PlayAnimation(string stateName)
     {
-        var animName = $"{stateName}_{Facing.ToString().ToLower()}";
+        _currentAnimation = stateName;
+        var anim = $"{stateName}_{Facing.ToString().ToLower()}";
         foreach (var layer in GetChildren().OfType<CharacterLayer>())
         {
-            if (layer.SpriteFrames?.HasAnimation(animName) == true)
-                layer.Play(animName);
+            if (layer.SpriteFrames?.HasAnimation(anim) == true)
+                layer.Play(anim);
         }
+    }
+
+    public void PlayCurrentAnimation()
+    {
+        PlayAnimation(_currentAnimation);
     }
 }

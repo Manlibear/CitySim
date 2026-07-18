@@ -48,6 +48,7 @@ Full autonomy simulation. No player character. You build the city, set the condi
 - Eviction if unable to pay — citizen becomes homeless, sleep quality drops, energy decay accelerates
 - Landlord entities collect rent, accumulate wealth
 - Can be fired from a job for low performance
+- Social interaction based on proximity
 
 ---
 
@@ -90,9 +91,6 @@ Milestone 2 closed out — see ✅ Complete.
 - High mood unlocks leisure activities (park visits, socialising)
 
 **Social Proximity**
-- Idle citizens within N tiles of each other face each other and slowly restore Social
-- `SocialInteractionComponent(Entity Other, TimeSpan Until)` tracks the pair
-- On end: detach component, resume normal schedule
 - Social interrupt — `Social < MinSocialNeed` cancels current schedule, sends citizen to nearest park/leisure spot to seek out the proximity interactions above
 
 **Relationships**

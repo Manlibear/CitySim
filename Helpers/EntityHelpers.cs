@@ -41,6 +41,7 @@ public static class EntityHelpers
             if (nodeComp!.Node is PersonPresenter person)
             {
                 person.Facing = dir;
+                person.PlayCurrentAnimation();
             }
         }
     }

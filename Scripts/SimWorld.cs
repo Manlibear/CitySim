@@ -96,6 +96,7 @@ public partial class SimWorld : Node
         World.Register(new SleepSystem(World));
         World.Register(new DelayedEffectSystem(World));
         World.Register(new JobSystem(World));
+        World.Register(new SocialSystem(World));
         World.Initialize();
     }
 

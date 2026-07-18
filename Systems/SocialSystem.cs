@@ -38,7 +38,7 @@ public class SocialSystem(World world) : IUpdateSystem
                 var citizen = world.FindEntityByID(citizenPos.Entity)!.Value;
                 if (citizen.Has<SocialInteractionComponent>()) continue; // already been grabbed by someone else
 
-                var nearby = citizenPositions.Where(x => x.Position.ManhattanDistanceFrom(citizenPos.Position) <= Globals.InteractionTileRange).ToList();
+                var nearby = citizenPositions.Where(x => x.Entity != citizenPos.Entity && x.Position.ManhattanDistanceFrom(citizenPos.Position) <= Globals.InteractionTileRange).ToList();
 
                 if (nearby.Any())
                 {
@@ -130,12 +130,18 @@ public class SocialSystem(World world) : IUpdateSystem
                 }
                 else
                 {
+                    var entityNeeds = entity.Get<NeedsComponent>();
+                    var targetNeeds = entity.Get<NeedsComponent>();
+
                     var entityRelationship = entity.Get<RelationshipComponent>();
                     var targetRelationship = target.Get<RelationshipComponent>();
 
                     var socialTick = Globals.SocialRelationshipPerSecond * (float)delta * (socialComp.Positive ? 1 : -1);
                     entityRelationship.UpdateRelationship(target.Id, socialTick);
                     targetRelationship.UpdateRelationship(entity.Id, socialTick);
+
+                    entityNeeds.Social += socialTick;
+                    targetNeeds.Social += socialTick;
 
                     socialComp.Duration += delta;
                     targetSocial.Duration += delta;

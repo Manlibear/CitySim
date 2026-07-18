@@ -15,13 +15,14 @@ public class InterestsComponent : IComponent
     public List<Interest> GetInterests() => _interests;
     public List<Interest> FindCommonInterests(List<Interest> othersInterests)
     {
-        return [.. _interests.IntersectBy(othersInterests, (interest) => {
-            var matched = othersInterests.FirstOrDefault(x => x.Name == interest.Name);
-            if(matched != null) return null;
-
-            return new Interest(interest.Name, (interest.Intensity + matched!.Intensity) / 2);
-
-        }).Where(x => x!=null).OrderByDescending(x => x.Intensity)];
+        return [.. _interests
+            .IntersectBy(othersInterests.Select(x => x.Name), interest => interest.Name)
+            .Select(interest =>
+            {
+                var matched = othersInterests.First(x => x.Name == interest.Name);
+                return new Interest(interest.Name, (interest.Intensity + matched.Intensity) / 2);
+            })
+            .OrderByDescending(x => x.Intensity)];
     }
 
     public void AddInterest(string interest, float intensity = 1f)
