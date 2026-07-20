@@ -14,13 +14,19 @@ public partial class ShopBuildingPresenter : WorkBuildingPresenter
     [Export] public float CashierWage { get; set; }
     [Export] public float PriceFactor { get; set; }
 
+    // One-off seed stock for now - there's no restocking/delivery system yet
+    // (InventorySystem's building-refill branch is an unimplemented stub), so a shop's
+    // shelves are only ever this and will eventually sell out.
+    [Export] public Godot.Collections.Array<InitialStockEntry>? InitialStock { get; set; }
+
     public override void PreBootstrap()
     {
+        EmployerRegistry.AddEmployer(Name);
+
         base.PreBootstrap();
 
         if (_interior == null) return;
 
-        EmployerRegistry.AddEmployer(Name);
 
         var managerVisitorLocation = _interior.FindChild("ManagerVisitorLocation", recursive: true) ?? throw new KeyNotFoundException($"Cant find ManagerVisitorLocation for {Name}");
 
@@ -77,6 +83,12 @@ public partial class ShopBuildingPresenter : WorkBuildingPresenter
     {
         base.Bootstrap();
         Entity.Attach(new WalletComponent());
-        InventoryRegistry.Register(Entity.Id);
+        WalletRegistry.Register(Entity.Id);
+
+        var inventory = new Inventory();
+        foreach (var stock in InitialStock ?? [])
+            inventory.Add(stock.Item, stock.Amount, (decimal)stock.Cost);
+
+        InventoryRegistry.Register(Entity.Id, inventory);
     }
 }

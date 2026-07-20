@@ -1,5 +1,7 @@
 using System;
 using CitySim.Data;
+using CitySim.Registries;
+using Godot;
 
 namespace CitySim.Presenters;
 
@@ -7,7 +9,8 @@ namespace CitySim.Presenters;
 public partial class ShopLocationPresenter : LocationPresenter
 {
     public new LocationType Type { get; } = LocationType.Shop;
-    public LocationPresenter? CashierLocation { get; set; }
+
+    [Export] public LocationPresenter? CashierLocation { get; set; }
 
     public override void PostBootstrap()
     {

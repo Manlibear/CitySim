@@ -80,7 +80,7 @@ public class JobLoopTest(Node testScene) : TestClass(testScene)
         // The manager's desk, inside the employer's own map — where interviews happen.
         LocationRegistry.Register(new Location
         {
-            Name = "ManagerVisitor",
+            Name = "ManagerVisitorLocation",
             Map = EmployerName,
             EntityID = Guid.NewGuid(),
             Position = new WorldPosition(EmployerName, ManagerDeskTile),

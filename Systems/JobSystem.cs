@@ -91,7 +91,7 @@ public class JobSystem(World world) : IUpdateSystem
             }
             else
             {
-                location = LocationRegistry.Get("ManagerVisitor", jobApplicantComp.Employer) ?? throw new ArgumentException($"Unable to find ManagerVisitor location for '{jobApplicantComp.Employer}'");
+                location = LocationRegistry.Get("ManagerVisitorLocation", jobApplicantComp.Employer) ?? throw new ArgumentException($"Unable to find ManagerVisitorLocation location for '{jobApplicantComp.Employer}'");
             }
 
             if (location == null) throw new ArgumentException($"Unable to find interview location for {jobApplicantComp.Employer} {jobApplicantComp.Job}");

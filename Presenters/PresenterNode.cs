@@ -9,7 +9,7 @@ public abstract partial class PresenterNode : Node2D
     public Entity Entity { get; private set; }
     public Entity? ParentEntity { get; private set; }
 
-    protected World World => SimWorld.Instance.World;
+    public World World => SimWorld.Instance.World;
 
     private IPresenterState? _state;
 

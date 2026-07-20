@@ -6,7 +6,7 @@ public readonly struct Entity : IEquatable<Entity>
 {
     public Guid Id { get; }
 
-    private readonly World _world;
+    public readonly World _world;
 
     internal Entity(Guid id, World world)
     {
@@ -14,7 +14,10 @@ public readonly struct Entity : IEquatable<Entity>
         _world = world;
     }
 
-    public T Attach<T>(T component) where T : class, IComponent => _world.Attach(this, component);
+    public T Attach<T>(T component) where T : class, IComponent
+    {
+        return _world.Attach(this, component);
+    }
 
     public T Get<T>() where T : class, IComponent => _world.Get<T>(this);
 

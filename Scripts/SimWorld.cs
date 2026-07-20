@@ -21,7 +21,7 @@ public partial class SimWorld : Node
 
     [Export] public float TimeSpeed { get; set; } = 1f;
     [Export] public float TimeMultiplier { get; set; } = 60;
-    [Export] public int Seed {get;set;} = 42;
+    [Export] public int Seed { get; set; } = 42;
     public DateTime DateTime { get; set; } = new DateTime(2000, 01, 01, 9, 0, 0);
     public decimal InterestRate { get; internal set; } = .0375m;
     public World World { get; private set; } = null!;
@@ -46,6 +46,11 @@ public partial class SimWorld : Node
 
     private void Bootstrap()
     {
+        WalletRegistry.Initialize();
+        InventoryRegistry.Initialize();
+        OccupancyRegistry.Initialize();
+        QueueRegistry.Initialize(World);
+
         var overworldLayers = GetTree().CurrentScene
             .FindChild("Map")
             .GetChildren()
@@ -76,12 +81,6 @@ public partial class SimWorld : Node
             if (node is not PresenterNode presenter) continue;
             presenter.PostBootstrap();
         }
-
-
-        WalletRegistry.Initialize();
-        InventoryRegistry.Initialize();
-        OccupancyRegistry.Initialize();
-        QueueRegistry.Initialize(World);
 
         World.Register(new PathfindingSystem(World));
         World.Register(new MoveToSystem(World));

@@ -95,6 +95,7 @@ public partial class BuildingPresenter : PresenterNode
             foreach (var node in _interior.GetChildren().Where(x => x.IsInGroup("ecs_entity")))
             {
                 if (node is not PresenterNode presenter) continue;
+                SimWorld.Instance.SpawnEntity(presenter);
                 presenter.Bootstrap();
             }
 

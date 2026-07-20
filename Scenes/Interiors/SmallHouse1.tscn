@@ -15,5 +15,5 @@ tile_set = ExtResource("1_e81ok")
 [node name="TileMapLayer2" type="TileMapLayer" parent="." unique_id=458984236]
 tile_set = ExtResource("1_e81ok")
 
-[node name="Bed" parent="." unique_id=100789266 instance=ExtResource("3_ukxnl")]
+[node name="Bed" parent="." unique_id=100789266 groups=["ecs_entity"] instance=ExtResource("3_ukxnl")]
 position = Vector2(160, 0)
